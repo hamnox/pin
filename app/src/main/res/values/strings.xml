@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Pin</string>
+    <string name="time_prompt">How many minutes for this timer?</string>
+</resources>
