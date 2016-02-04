@@ -15,9 +15,9 @@ import android.widget.Toast;
  *
  mRingtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
  */
-public class AlarmReceiver extends BroadcastReceiver
+public class MainTimerReceiver extends BroadcastReceiver
 {
-    private static final String TAG = AlarmReceiver.class.getSimpleName();
+    private static final String TAG = MainTimerReceiver.class.getSimpleName();
     private static AlarmManager alarmMgr;
     private static PendingIntent alarmIntent;
     private static boolean isPinOpen;
@@ -36,52 +36,41 @@ public class AlarmReceiver extends BroadcastReceiver
         // http://stackoverflow.com/questions/3667022/checking-if-an-android-application-is-running-in-the-background
 
 
+        // TODO: hold a service open until the user acknowledges
+        // TODO: hold a wake lock until the user acknowledges
         Intent mainIntent = new Intent(context, MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //        if (!isPinOpen) {
             context.startActivity(mainIntent);
 //        }
+        BotherBotherReceiver.setAlarm(context);
         wl.release();
-
-        setAlarm(context);
-    }
-
-    public static void setAlarm(Context context) {
-        alarmMgr = (AlarmManager)context.getSystemService(context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-        alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-
-        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() +
-                        30 * 1000, alarmIntent);
-        Log.i(TAG, "Alarm set");
     }
 
     public static void setAlarm(Context context, int minutes) {
         alarmMgr = (AlarmManager)context.getSystemService(context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
+        Intent intent = new Intent(context, MainTimerReceiver.class);
         intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         if (minutes <= 0) {
             Toast.makeText(context, "Invalid Timer", Toast.LENGTH_SHORT).show();
-            setAlarm(context);
             return;
         }
 
         AsyncRingtonePlayer.getAsyncRingtonePlayer(context.getApplicationContext()).stop();
         alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() +
-                        1 * minutes * 1000 + 1, alarmIntent);
+                        60 * minutes * 1000 + 1, alarmIntent);
         Log.i(TAG, String.format("%d minute alarm set", minutes));
     }
 
     public static void cancelAlarm(Context context) {
-        Intent intent = new Intent(context, AlarmReceiver.class);
+        Intent intent = new Intent(context, MainTimerReceiver.class);
         PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
+        AsyncRingtonePlayer.getAsyncRingtonePlayer(context).stop();
     }
 
     public static void setPinOpen(boolean status) {

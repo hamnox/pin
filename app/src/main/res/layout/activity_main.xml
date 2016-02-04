@@ -30,12 +30,23 @@
             android:id="@+id/thebutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Set alarm"/>
+            android:text="@string/set_alarm"/>
         <Button
             android:id="@+id/stopbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Make it stop!"
+            android:text="@string/stop_button"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/bother_countdown"
+            />
+        <Button
+            android:id="@+id/acknowledgebutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/acknowledge"
+            android:visibility="gone"
             />
     </LinearLayout>
 </RelativeLayout>

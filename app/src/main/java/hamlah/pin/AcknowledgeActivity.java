@@ -6,7 +6,7 @@ import android.media.SoundPool;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class AcknowledgeAlarm extends AppCompatActivity {
+public class AcknowledgeActivity extends AppCompatActivity {
    // SoundPool soundPool = new SoundPool.Builder().setAudioAttributes(AudioAttributes.USAGE_ALARM).build();
 
     @Override

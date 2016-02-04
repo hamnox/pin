@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Pin</string>
     <string name="time_prompt">How many minutes for this timer?</string>
+    <string name="set_alarm">Set alarm</string>
+    <string name="stop_button">Stop main alarm</string>
+    <string name="acknowledge">Yeah, I heard you</string>
 </resources>
