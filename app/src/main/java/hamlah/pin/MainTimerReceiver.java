@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,7 +31,8 @@ public class MainTimerReceiver extends BroadcastReceiver
                 PowerManager.ACQUIRE_CAUSES_WAKEUP |
                 PowerManager.ON_AFTER_RELEASE, "");
         wl.acquire();
-        AsyncRingtonePlayer.getAsyncRingtonePlayer(context.getApplicationContext()).play(null);
+
+
         Log.i(TAG, "Alarm went off");
 
         // Checking whether the main activity is open
@@ -38,16 +41,17 @@ public class MainTimerReceiver extends BroadcastReceiver
 
         // TODO: hold a service open until the user acknowledges
         // TODO: hold a wake lock until the user acknowledges
-        Intent mainIntent = new Intent(context, MainActivity.class);
+        Intent mainIntent = new Intent(context, AcknowledgeActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //        if (!isPinOpen) {
             context.startActivity(mainIntent);
 //        }
-        BotherBotherReceiver.setAlarm(context);
+        AsyncRingtonePlayer.getAsyncRingtonePlayer(context).play(null);
         wl.release();
     }
 
     public static void setAlarm(Context context, int minutes) {
+
         alarmMgr = (AlarmManager)context.getSystemService(context.ALARM_SERVICE);
         Intent intent = new Intent(context, MainTimerReceiver.class);
         intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
@@ -61,19 +65,15 @@ public class MainTimerReceiver extends BroadcastReceiver
         AsyncRingtonePlayer.getAsyncRingtonePlayer(context.getApplicationContext()).stop();
         alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() +
-                        60 * minutes * 1000 + 1, alarmIntent);
+                        minutes * 1000 + 1, alarmIntent);
+        // TODO: don't forget to add 60* back in for reals
         Log.i(TAG, String.format("%d minute alarm set", minutes));
     }
 
-    public static void cancelAlarm(Context context) {
+    public static void cancelAlarm(@NonNull Context context) {
         Intent intent = new Intent(context, MainTimerReceiver.class);
         PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
-        AsyncRingtonePlayer.getAsyncRingtonePlayer(context).stop();
-    }
-
-    public static void setPinOpen(boolean status) {
-        isPinOpen = status;
     }
 }

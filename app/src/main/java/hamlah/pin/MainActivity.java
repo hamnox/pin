@@ -48,14 +48,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         timerMinutes = 10;
-
         ButterKnife.bind(this);
-        MainTimerReceiver.setPinOpen(true);
     }
 
     @Override
     protected void onPause() {
-        MainTimerReceiver.setPinOpen(false);
         super.onPause();
         countdownCallback = null;
     }
@@ -63,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        MainTimerReceiver.setPinOpen(true);
         BotherBotherReceiver.setAlarm(this);
         countdownCallback = new Runnable() {
             @Override
@@ -87,12 +83,11 @@ public class MainActivity extends AppCompatActivity {
                 setNextCountDown(timeUntilNext % 1000);
             }
         };
-        setNextCountDown(0);
+        setNextCountDown(1);
     }
 
     @Override
     protected void onDestroy() {
-        MainTimerReceiver.setPinOpen(false);
         super.onDestroy();
     }
 
@@ -114,10 +109,10 @@ public class MainActivity extends AppCompatActivity {
         BotherBotherReceiver.cancelAlarm(this);
     }
 
-    @OnClick(R.id.stopbutton)
+    /** @OnClick(R.id.stopbutton)
     public void onStopperClicked() {
         MainTimerReceiver.cancelAlarm(this);
-    }
+    } **/
 
     @OnClick(R.id.acknowledgebutton)
     public void onAcknowledgeClicked() {
