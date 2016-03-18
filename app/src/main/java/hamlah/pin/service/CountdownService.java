@@ -81,28 +81,39 @@ public class CountdownService extends Service {
         Log.v(TAG, "die(): done");
     }
 
-    private String formatTime(long time, boolean showSeconds) {
+    public static String formatTime(long time, boolean showSeconds) {
         time += 999;
         long seconds = (time / 1000) % 60;
         long minutes = (time / (60 * 1000)) % 60;
         long hours = (time / (60 * 60 * 1000)) % 24;
         long days = (time / (60 * 60 * 24 * 1000));
         String result = "";
+        int count = 0;
         if (days > 0) {
             result += String.format("%s days and ", days);
+            count++;
         }
-        if (hours > 0 || days > 0) {
+        if (hours > 0 || count > 0) {
             result += String.format("%s:", hours);
+            count++;
         }
-        if (!showSeconds || days > 0 || hours > 0 || minutes > 0) {
-            result += String.format("%02d", minutes);
+        if (!showSeconds || minutes > 0 || count > 0) {
+            if (count > 0) {
+                result += String.format("%02d", minutes);
+            } else {
+                result += String.format("%d", minutes);
+            }
+            if (count == 0 && !showSeconds) {
+                result += " minutes";
+            }
+            count++;
         }
         if (showSeconds || (time < 1000 * 60)) {
-            if (minutes > 0 || hours > 0 || days > 0) {
+            if (count > 0) {
                 result += ":";
             }
             result += String.format("%02d", seconds);
-            if (time < 1000 * 60) {
+            if (time < 1000 * 60 || count == 1) {
                 result += " seconds";
             }
         }
@@ -119,12 +130,11 @@ public class CountdownService extends Service {
         Settings settings = new Settings(this);
         Class<?> activity;
         long remaining;
-        int title;
+        String title;
         int content;
         boolean showSeconds;
         if (settings.main.isCounting()) {
-            title = R.string.main_alarm;
-
+            title = settings.main.getLabel();
             remaining = settings.main.remaining();
             content = R.string.main_alarm_detail;
             showSeconds = false;
@@ -133,8 +143,7 @@ public class CountdownService extends Service {
             activity = AcknowledgeActivity.class;
 
         } else if (settings.bother.isCounting()) {
-            title = R.string.main_alarm;
-
+            title = settings.bother.getLabel();
             remaining = settings.bother.remaining();
             content = R.string.bother_alarm_detail;
             showSeconds = true;
@@ -146,7 +155,7 @@ public class CountdownService extends Service {
             Log.v(TAG, "nothing is counting");
             return false;
         }
-        builder.setContentTitle(getText(title));
+        builder.setContentTitle(title);
         builder.setContentText(String.format(getString(content),
                 formatTime(remaining, showSeconds)));
 

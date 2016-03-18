@@ -1,5 +1,6 @@
 package hamlah.pin;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
 
@@ -22,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
     //private PendingIntent alarmIntent;
     @Bind(R.id.timerminutes)
     EditText minutesEditor;
+
+    @Bind(R.id.label)
+    EditText label;
 
     @Bind(R.id.bother_countdown)
     TextView botherCountdown;
@@ -58,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Timers.armBotherAlarm(this);
+        Timers.armBotherAlarm(this, "mainactivity");
         countdownCallback = new Runnable() {
             @Override
             public void run() {
@@ -66,6 +71,13 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 Settings settings = new Settings(MainActivity.this);
+                if (settings.main.isCounting()) {
+                    Intent intent = new Intent(MainActivity.this, AcknowledgeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    return;
+                }
                 if (settings.bother.isTriggered()) {
                     botherCountdown.setVisibility(View.GONE);
                     acknowledgeButton.setVisibility(View.VISIBLE);
@@ -78,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     botherCountdown.setVisibility(View.VISIBLE);
                 }
-                botherCountdown.setText("Time Left: " + (timeUntilNext / 1000 + 1));
+                botherCountdown.setText(CountdownService.formatTime(timeUntilNext, true));
                 setNextCountDown(timeUntilNext % 1000);
             }
         };
@@ -102,9 +114,10 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.thebutton)
     public void onClicked() {
-        Timers.setMainAlarm(this, timerMinutes);
+        Timers.setMainAlarm(this, timerMinutes, label.getText().toString());
         Toast.makeText(this, "Timer set for " + timerMinutes.toString()
                + " minutes.", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     /** @OnClick(R.id.stopbutton)

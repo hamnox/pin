@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import hamlah.pin.BotherBotherReceiver;
@@ -20,7 +21,7 @@ public class Settings {
     private static final String TAG = Settings.class.getSimpleName();
     private final SharedPreferences preferences;
 
-    public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59);
+    public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59, "Bother Countdown");
     public final AlarmSettings main = new AlarmSettings("mainalarm", 1, MainTimerReceiver.class, 60 * 1000);
     private final Context context;
 
@@ -29,57 +30,70 @@ public class Settings {
         this.context = context;
     }
 
-    public void verifyAlarms() {
-        if (bother.isCounting()) {
-            bother.rearm(bother.remaining());
-        }
-        if (main.isCounting()) {
-            main.rearm(main.remaining());
-        }
+    public void refreshAlarms() {
+        bother.refresh();
+        main.refresh();
     }
 
     @SuppressLint("CommitPrefEdits")
     public class AlarmSettings {
+        private final String ALARM_LABEL_KEY;
         private final int alarmIndex;
         private final Class<?> receiver;
         private final String ALARM_KEY;
         private final String ALARM_TRIGGERED_KEY;
         private final Integer defaultvalue;
         private final long scale;
+        private final String defaultlabel;
 
         private AlarmSettings(String name, int alarmIndex, Class<?> receiver, long scale) {
-            this(name, alarmIndex, receiver, scale, null);
+            this(name, alarmIndex, receiver, scale, null, null);
         }
 
-        private AlarmSettings(String name, int alarmIndex, Class<?> receiver, long scale, Integer defValue) {
+        private AlarmSettings(String name, int alarmIndex, Class<?> receiver, long scale, Integer defValue, String defaultlabel) {
 
             this.alarmIndex = alarmIndex;
             this.receiver = receiver;
             ALARM_KEY = name;
+            this.defaultlabel = defaultlabel;
             ALARM_TRIGGERED_KEY = name + "_triggered";
+            ALARM_LABEL_KEY = name + "_label";
             this.defaultvalue = defValue;
             this.scale = scale;
         }
 
 
-        public void arm() {
+        public boolean arm() {
             if (defaultvalue == null) {
                 throw new UnsupportedOperationException();
             }
-            arm(defaultvalue);
+            return arm(defaultvalue, defaultlabel);
         }
 
-        public void arm(long value) {
+        public boolean arm(long value, String label) {
             if (remaining() >= 0 || isTriggered()) {
-                return;
+                return false;
             }
+            setLabel(label);
+            long end = SystemClock.elapsedRealtime() + value * scale;
+            _createAndroidAlarm(end);
+            return true;
+        }
+
+        private void refresh() {
+            final long l = get();
+            if (l != -1) {
+                _createAndroidAlarm(l);
+            }
+        }
+
+        private void _createAndroidAlarm(long end) {
             AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
             Intent intent = new Intent(context, receiver);
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
             PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarmIndex, intent, 0);
 
-            long end = SystemClock.elapsedRealtime() + value * scale;
             alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, end, alarmIntent);
 
             setTime(end);
@@ -91,9 +105,9 @@ public class Settings {
             arm();
         }
 
-        void rearm(long value) {
+        void rearm(long value, String label) {
             markNotFiring();
-            arm(value);
+            arm(value, label);
         }
 
         public long remaining() {
@@ -146,6 +160,15 @@ public class Settings {
 
         public boolean isCounting() {
             return get() >= 0;
+        }
+
+        @Nullable
+        public String getLabel() {
+            return preferences.getString(ALARM_LABEL_KEY, defaultlabel);
+        }
+
+        private void setLabel(String value) {
+            preferences.edit().putString(ALARM_LABEL_KEY, value).commit();
         }
     }
 }
