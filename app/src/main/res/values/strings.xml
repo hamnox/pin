@@ -4,4 +4,7 @@
     <string name="set_alarm">Set alarm</string>
     <string name="stop_button">Stop main alarm</string>
     <string name="acknowledge">Yeah, I heard you</string>
+    <string name="main_alarm">Timer set</string>
+    <string name="main_alarm_detail">%s remaining</string>
+    <string name="bother_alarm_detail">You have %s seconds...</string>
 </resources>

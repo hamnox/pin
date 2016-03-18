@@ -13,6 +13,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import hamlah.pin.service.Settings;
+import hamlah.pin.service.Timers;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -35,12 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setNextCountDown(long time) {
         //// TODO: 2/2/16 get real num
-        cancelCountdown();
         handler.postDelayed(countdownCallback, time);
-    }
-
-    private void cancelCountdown() {
-
     }
 
     @Override
@@ -49,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         timerMinutes = 10;
         ButterKnife.bind(this);
+        // TODO: new Settings(this).verifyAlarms();
     }
 
     @Override
@@ -60,26 +58,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        BotherBotherReceiver.setAlarm(this);
+        Timers.armBotherAlarm(this);
         countdownCallback = new Runnable() {
             @Override
             public void run() {
                 if (this != countdownCallback) {
                     return;
                 }
-                if (new Settings(MainActivity.this).isBotherAlarmTriggered()) {
+                Settings settings = new Settings(MainActivity.this);
+                if (settings.bother.isTriggered()) {
                     botherCountdown.setVisibility(View.GONE);
                     acknowledgeButton.setVisibility(View.VISIBLE);
                     return;
                 }
-                long timeUntilNext = BotherBotherReceiver.getTimeUntilNext(MainActivity.this);
+                long timeUntilNext = settings.bother.remaining();
                 if (timeUntilNext < 0) {
                     botherCountdown.setVisibility(View.GONE);
                     timeUntilNext = 500;
                 } else {
                     botherCountdown.setVisibility(View.VISIBLE);
                 }
-                botherCountdown.setText("Time Left: " + timeUntilNext / 1000 + 1);
+                botherCountdown.setText("Time Left: " + (timeUntilNext / 1000 + 1));
                 setNextCountDown(timeUntilNext % 1000);
             }
         };
@@ -103,10 +102,9 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.thebutton)
     public void onClicked() {
-        MainTimerReceiver.setAlarm(this, timerMinutes);
+        Timers.setMainAlarm(this, timerMinutes);
         Toast.makeText(this, "Timer set for " + timerMinutes.toString()
                + " minutes.", Toast.LENGTH_SHORT).show();
-        BotherBotherReceiver.cancelAlarm(this);
     }
 
     /** @OnClick(R.id.stopbutton)
@@ -116,10 +114,8 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.acknowledgebutton)
     public void onAcknowledgeClicked() {
-        AsyncRingtonePlayer.getAsyncRingtonePlayer(this).stop();
-        new Settings(this).setBotherAlarmTriggered(false);
-        BotherBotherReceiver.setAlarm(this);
-        setNextCountDown(0);
+        Timers.ackBotherAlarm(this);
+        setNextCountDown(250);
         acknowledgeButton.setVisibility(View.GONE);
     }
 }

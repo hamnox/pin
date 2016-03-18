@@ -1,3 +1,5 @@
+// NOTE: copied from AOSP, modified a bit. this file is the only one licensed apache.
+
 /*
  * Copyright (C) 2008 The Android Open Source Project
  *
@@ -16,6 +18,7 @@
 
 package hamlah.pin;
 
+import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -50,19 +53,19 @@ public abstract class CountDownTimer {
     /**
      * Millis since epoch when alarm should stop.
      */
-    private final long mMillisInFuture;
+    private final long millisInFuture;
 
     /**
      * The interval in millis that the user receives callbacks
      */
-    private final long mCountdownInterval;
+    private final long countdownInterval;
 
-    private long mStopTimeInFuture;
+    private long stopTimeInFuture;
     
     /**
     * boolean representing if the timer was cancelled
     */
-    private boolean mCancelled = false;
+    private boolean cancelled = false;
 
     /**
      * @param millisInFuture The number of millis in the future from the call
@@ -72,15 +75,15 @@ public abstract class CountDownTimer {
      *   {@link #onTick(long)} callbacks.
      */
     public CountDownTimer(long millisInFuture, long countDownInterval) {
-        mMillisInFuture = millisInFuture;
-        mCountdownInterval = countDownInterval;
+        this.millisInFuture = millisInFuture;
+        this.countdownInterval = countDownInterval;
     }
 
     /**
      * Cancel the countdown.
      */
     public synchronized final void cancel() {
-        mCancelled = true;
+        cancelled = true;
         mHandler.removeMessages(MSG);
     }
 
@@ -88,12 +91,12 @@ public abstract class CountDownTimer {
      * Start the countdown.
      */
     public synchronized final CountDownTimer start() {
-        mCancelled = false;
-        if (mMillisInFuture <= 0) {
+        cancelled = false;
+        if (millisInFuture <= 0) {
             onFinish();
             return this;
         }
-        mStopTimeInFuture = SystemClock.elapsedRealtime() + mMillisInFuture;
+        stopTimeInFuture = SystemClock.elapsedRealtime() + millisInFuture;
         mHandler.sendMessage(mHandler.obtainMessage(MSG));
         return this;
     }
@@ -115,35 +118,31 @@ public abstract class CountDownTimer {
 
 
     // handles counting down
+    @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
 
             synchronized (CountDownTimer.this) {
-                if (mCancelled) {
+                if (cancelled) {
                     return;
                 }
 
-                final long millisLeft = mStopTimeInFuture - SystemClock.elapsedRealtime();
+                final long millisLeft = stopTimeInFuture - SystemClock.elapsedRealtime();
 
                 if (millisLeft <= 0) {
                     onFinish();
-                } else if (millisLeft < mCountdownInterval) {
+                } else if (millisLeft < countdownInterval) {
                     // no tick, just delay until done
                     sendMessageDelayed(obtainMessage(MSG), millisLeft);
                 } else {
-                    long lastTickStart = SystemClock.elapsedRealtime();
                     onTick(millisLeft);
 
                     // take into account user's onTick taking time to execute
-                    long delay = lastTickStart + mCountdownInterval - SystemClock.elapsedRealtime();
+                    long delay = (stopTimeInFuture - SystemClock.elapsedRealtime()) % countdownInterval;
 
-                    // special case: user's onTick took more than interval to
-                    // complete, skip to next interval
-                    while (delay < 0) delay += mCountdownInterval;
-
-                    sendMessageDelayed(obtainMessage(MSG), delay);
+                    sendMessageDelayed(obtainMessage(MSG), delay + 1);
                 }
             }
         }
