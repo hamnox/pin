@@ -13,8 +13,25 @@
 
     <Button
         android:id="@+id/offbutton"
+        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Alarm off"
+        android:text="@string/alarm_off"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/offbutton"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/label"
+        android:text="@string/filler"
+        />
+    <TextView
+        android:layout_below="@id/offbutton"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/countdown"
+        android:text="@string/filler"
         />
 </RelativeLayout>

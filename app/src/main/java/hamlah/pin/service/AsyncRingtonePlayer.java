@@ -1,4 +1,4 @@
-package hamlah.pin;
+package hamlah.pin.service;
 
 /* stoled from DeskClock */
 
@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -44,7 +43,7 @@ import java.lang.reflect.Method;
  *     the android.permission.READ_EXTERNAL_STORAGE permission has no effect on playback in M+.</li>
  * </ul>
  */
-public final class AsyncRingtonePlayer {
+final class AsyncRingtonePlayer {
 
     private static final String TAG = "AsyncRingtonePlayer";
 
@@ -87,7 +86,6 @@ public final class AsyncRingtonePlayer {
 
     /** Schedules an adjustment of the playback volume 50ms in the future. */
     private void scheduleVolumeAdjustment() {
-        Log.v(TAG, "Adjusting volume.");
 
         // Ensure we never have more than one volume adjustment queued.
         mHandler.removeMessages(EVENT_VOLUME);
@@ -282,6 +280,11 @@ public final class AsyncRingtonePlayer {
                 alarmNoise = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
                 Log.v(TAG, "Using default alarm: " + alarmNoise.toString());
             }
+            if (mMediaPlayer != null) {
+                mMediaPlayer.stop();
+                mMediaPlayer.release();
+                mMediaPlayer = null;
+            }
 
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -392,7 +395,6 @@ public final class AsyncRingtonePlayer {
             // The current volume of the crescendo is the percentage of the crescendo completed.
             final float volume = computeVolume(currentTime, mCrescendoStopTime, mCrescendoDuration);
             mMediaPlayer.setVolume(volume, volume);
-            Log.i(TAG, "MediaPlayer volume set to " + volume);
 
             // Schedule the next volume bump in the crescendo.
             return true;
@@ -447,6 +449,10 @@ public final class AsyncRingtonePlayer {
 
             if (mAudioManager == null) {
                 mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            }
+
+            if (mRingtone != null && mRingtone.isPlaying()) {
+                mRingtone.stop();
             }
 
 
@@ -570,7 +576,7 @@ public final class AsyncRingtonePlayer {
         }
     }
 
-    public static synchronized AsyncRingtonePlayer getAsyncRingtonePlayer(Context context) {
+    public static synchronized AsyncRingtonePlayer get(Context context) {
         if (sAsyncRingtonePlayer == null) {
             sAsyncRingtonePlayer = new AsyncRingtonePlayer(context.getApplicationContext());
         }
