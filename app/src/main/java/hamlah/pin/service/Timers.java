@@ -34,7 +34,8 @@ public class Timers {
             File external = Environment.getExternalStorageDirectory();
             File filepath = new File(external, "pin_timers.log");
             out = new PrintWriter(new BufferedWriter(new FileWriter(filepath, true)));
-            final String formatted = String.format("%s:%s:%s %s", event, alarmtype, timeleft, label);
+            long time = System.currentTimeMillis();
+            final String formatted = String.format("%s %s:%s:%s %s", time, event, alarmtype, timeleft, label);
             out.println(formatted);
             out.close();
             Log.i(TAG, formatted);

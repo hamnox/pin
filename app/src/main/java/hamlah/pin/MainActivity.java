@@ -2,6 +2,7 @@ package hamlah.pin;
 
 import android.content.Intent;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.acknowledgebutton)
     Button acknowledgeButton;
 
+    @Nullable
     private Integer timerMinutes;
 
     private Handler handler = new Handler();
@@ -107,13 +109,17 @@ public class MainActivity extends AppCompatActivity {
         try {
             timerMinutes = Integer.valueOf(minutesEditor.getText().toString());
         } catch (NumberFormatException e) {
-            minutesEditor.setText(timerMinutes.toString());
+            timerMinutes = null;
         }
         // save in shared preferences or something
     }
 
     @OnClick(R.id.thebutton)
     public void onClicked() {
+        if (timerMinutes == null) {
+            Toast.makeText(this, "Invalid Integer", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Timers.setMainAlarm(this, timerMinutes, label.getText().toString());
         Toast.makeText(this, "Timer set for " + timerMinutes.toString()
                + " minutes.", Toast.LENGTH_SHORT).show();
