@@ -1,9 +1,12 @@
 package hamlah.pin;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,6 +20,8 @@ import hamlah.pin.service.Timers;
 
 public class AcknowledgeActivity extends AppCompatActivity {
 
+    private static final String TAG = AcknowledgeActivity.class.getSimpleName();
+    private static boolean isResumed = false;
     private Handler handler = new Handler();
 
     private Runnable countdownCallback;
@@ -38,10 +43,47 @@ public class AcknowledgeActivity extends AppCompatActivity {
     @OnClick(R.id.offbutton)
     public void onOffClicked(){
         Timers.ackMainAlarm(this);
-        Intent intent = new Intent(this, MainActivity.class);
+        MainActivity.launch(this);
+        finish();
+    }
+
+    @OnClick(R.id.mark_did_something_else)
+    public void markDidSomethingElse() {
+        Timers.log("did_something_else", "main", null, null, this);
+        onOffClicked();
+    }
+
+    @OnClick(R.id.mark_distracted)
+    public void markDistracted() {
+        Timers.log("distracted", "main", null, null, this);
+        onOffClicked();
+    }
+
+    @OnClick(R.id.mark_failed)
+    public void markFailed() {
+        Timers.log("failed", "main", null, null, this);
+        onOffClicked();
+    }
+
+    @OnClick(R.id.mark_typoed)
+    public void markTypoed() {
+        Timers.log("typoed_alarm_settings", "main", null, null, this);
+        onOffClicked();
+    }
+
+
+    public static void launch(Context context) {
+        Log.i(TAG, "Launching, resumed: " + isResumed);
+        if (isResumed) {
+            return;
+        }
+        Intent intent = new Intent(context, AcknowledgeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        context.startActivity(intent);
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
     }
 
     @Override
@@ -57,11 +99,15 @@ public class AcknowledgeActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         countdownCallback = null;
+        isResumed = false;
+        Log.i(TAG, "paused, resumed: " + isResumed);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        isResumed = true;
+        Log.i(TAG, "resumed, resumed: " + isResumed);
         Settings settings = new Settings(this);
         if (settings.main.getLabel() != null
                 && (settings.main.isCounting() || settings.main.isTriggered())) {

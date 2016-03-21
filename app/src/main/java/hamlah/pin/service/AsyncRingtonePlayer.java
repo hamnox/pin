@@ -176,7 +176,9 @@ final class AsyncRingtonePlayer {
     private static float computeVolume(long currentTime, long stopTime, long duration) {
         // Compute the percentage of the crescendo that has completed.
         final float elapsedCrescendoTime = stopTime - currentTime;
-        final float fractionComplete = 1 - (elapsedCrescendoTime / duration);
+        float fractionComplete = (elapsedCrescendoTime / duration);
+        fractionComplete = (float)Math.pow(fractionComplete, 2f);
+        fractionComplete = 1-fractionComplete;
 
         // Use the fraction to compute a target decibel between -40dB (near silent) and 0dB (max).
         final float gain = (fractionComplete * 40) - 40;

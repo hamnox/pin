@@ -66,23 +66,23 @@ public class AsyncRingtoneService extends Service {
 
             if (!mainAlarmPlaying) {
                 Log.i(TAG, "... and wasn't playing. starting it");
-                AsyncRingtonePlayer.get(context).play(null);
+                AsyncRingtonePlayer.get(context).play(settings.main.getSound());
 
-                Intent mainIntent = new Intent(context, AcknowledgeActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(mainIntent);
+                AcknowledgeActivity.launch(context);
             }
             botherAlarmPlaying = false;
             mainAlarmPlaying = true;
+        } else if (settings.main.isCounting()) {
+            Log.i(TAG, "main alarm is counting, disarming bother alarm");
+            settings.bother.disarm();
+            shutdown();
         } else if (botherAlarmTriggered) {
             Log.i(TAG, "bother alarm is triggered...");
             if (!botherAlarmPlaying) {
                 Log.i(TAG, "... and wasn't playing. starting it");
-                AsyncRingtonePlayer.get(context).play(null);
+                AsyncRingtonePlayer.get(context).play(settings.bother.getSound());
 
-                Intent mainIntent = new Intent(context, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(mainIntent);
+                MainActivity.launch(context);
             }
             botherAlarmPlaying = true;
             mainAlarmPlaying = false;

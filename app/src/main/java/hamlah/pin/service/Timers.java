@@ -28,7 +28,7 @@ public class Timers {
         go(context);
     }
 
-    private static synchronized void log(String event, String alarmtype, Long timeleft, String label, Context context) {
+    public static synchronized void log(String event, String alarmtype, Long timeleft, String label, Context context) {
         PrintWriter out = null;
         try {
             File external = Environment.getExternalStorageDirectory();
@@ -91,7 +91,7 @@ public class Timers {
             return;
         }
         if (settings.bother.arm()) {
-            log("set", "bother", 1l, "bother", context);
+            log("set", "bother", 1l, reason, context);
         }
         go(context);
     }
