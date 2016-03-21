@@ -2,59 +2,96 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:gravity="center"
-    android:keepScreenOn="true"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+    android:layout_centerInParent="true"
+    android:gravity="center_vertical"
     tools:context="hamlah.pin.MainActivity">
-    <LinearLayout
-        android:layout_width="wrap_content"
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/label_wrapper"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
-        <EditText
+        android:layout_alignParentRight="true"
+        android:hint="@string/default_alarm_name">
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/label"
             android:inputType="text|textCapWords|textAutoComplete|textAutoCorrect"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:textAlignment="center"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/time_prompt"/>
-        <EditText
+            />
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/thebutton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="@string/set_alarm"
+        android:layout_below="@id/label_wrapper"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="15dp"/>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/timerminutes_wrapper"
+        android:hint="@string/time_prompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/thebutton"
+        android:layout_below="@id/label_wrapper"
+        android:layout_marginTop="10dp">
+
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/timerminutes"
             android:inputType="number"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:textAlignment="center"/>
-        <Button
-            android:id="@+id/thebutton"
-            android:layout_width="wrap_content"
+            android:textAlignment="viewEnd"
+            android:selectAllOnFocus="true"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/sleep_until"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="@string/sleep_until_time"
+        android:layout_alignRight="@id/thebutton"
+        android:layout_below="@id/timerminutes_wrapper"
+        android:layout_marginTop="10dp"/>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/waketime_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/sleep_until"
+        android:layout_toLeftOf="@id/sleep_until"
+        android:hint="@string/waketime">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/waketime"
+            android:inputType="number"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="@string/set_alarm"/>
-        <!--
-        <Button
-            android:id="@+id/stopbutton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/stop_button"/>
-            -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/bother_countdown"
-            />
-        <Button
-            android:id="@+id/acknowledgebutton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/acknowledge"
-            android:visibility="gone"
-            />
-    </LinearLayout>
+            android:textAlignment="viewEnd"
+            android:selectAllOnFocus="true"/>
+    </android.support.design.widget.TextInputLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bother_countdown"
+        android:text="25 seconds"
+        android:layout_alignLeft="@id/label_wrapper"
+        android:layout_below="@id/label_wrapper"
+        android:layout_marginTop="25dp"
+        />
+    <Button
+        android:id="@+id/acknowledgebutton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/acknowledge"
+        android:layout_alignLeft="@id/label_wrapper"
+        android:layout_toLeftOf="@id/timerminutes_wrapper"
+        android:layout_below="@id/label_wrapper"
+        android:layout_marginTop="5dp"
+        android:visibility="gone"
+        />
 </RelativeLayout>

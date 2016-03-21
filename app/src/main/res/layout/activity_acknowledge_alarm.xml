@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:gravity="center"
+    android:keepScreenOn="true"
     tools:context=".AcknowledgeActivity">
 
     <Button
@@ -34,4 +34,40 @@
         android:id="@+id/countdown"
         android:text="@string/filler"
         />
+
+    <Button
+        android:id="@+id/mark_failed"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/failed"
+        />
+    <Button
+        android:id="@+id/mark_typoed"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/mark_failed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/typoed"
+        />
+    <Button
+        android:id="@+id/mark_distracted"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/mark_typoed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/distracted"
+        />
+    <Button
+        android:id="@+id/mark_did_something_else"
+        android:layout_above="@id/mark_failed"
+        android:layout_alignParentLeft="true"
+        android:layout_toRightOf="@id/mark_typoed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/did_something_else"
+        />
+
+
 </RelativeLayout>

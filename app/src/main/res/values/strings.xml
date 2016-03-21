@@ -1,13 +1,26 @@
 <resources>
     <string name="app_name">Pin</string>
-    <string name="time_prompt">How many minutes for this timer?</string>
+    <string name="time_prompt">Minutes</string>
     <string name="set_alarm">Set alarm</string>
     <string name="stop_button">Stop main alarm</string>
-    <string name="acknowledge">Yeah, I heard you</string>
+    <string name="acknowledge">Got it</string>
     <string name="main_alarm_detail">%s remaining</string>
-    <string name="bother_alarm_detail">You have %s seconds...</string>
+    <string name="bother_alarm_detail">You have %s...</string>
     <string name="seriouserror">Serious error. check logcat.</string>
-    <string name="alarm_off">Stop the beeping</string>
-    <string name="alarm_cancel">Cancel alarm</string>
+    <string name="alarm_off">Pick next task</string>
+    <string name="alarm_cancel">Done early</string>
     <string name="filler">filler</string>
+    <string name="sleep_until_time">Sleep</string>
+    <string name="default_alarm_name">Timer</string>
+    <string name="waketime">Wake Time</string>
+    <string name="bother_alarm_sound">Bother Alarm Sound</string>
+    <string name="main_alarm_sound">Main Alarm Sound</string>
+    <string name="button_set_bother">Bother alarm sound</string>
+    <string name="button_set_main">Main alarm sound</string>
+    <string name="sound_changed">Sound Changed</string>
+    <string name="settings">Settings</string>
+    <string name="failed">Failed</string>
+    <string name="typoed">typoed</string>
+    <string name="distracted">distracted</string>
+    <string name="did_something_else">distracted by something else useful</string>
 </resources>

@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -17,8 +18,12 @@ import hamlah.pin.MainTimerReceiver;
 /**
  * Created by hamnox on 2/3/16.
  */
+@SuppressLint("CommitPrefEdits")
 public class Settings {
     private static final String TAG = Settings.class.getSimpleName();
+    private static final String LAST_MINUTES_TEXT = "lastMinutesText";
+    private static final String LAST_TITLE_TEXT = "lastTitleText";
+    private static final String LAST_WAKE_TIME_TEXT = "lastWakeTimeText";
     private final SharedPreferences preferences;
 
     public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59, "Bother Countdown");
@@ -35,13 +40,37 @@ public class Settings {
         main.refresh();
     }
 
-    @SuppressLint("CommitPrefEdits")
+    public String getLastMinutesText() {
+        return preferences.getString(LAST_MINUTES_TEXT, null);
+    }
+
+    public void setLastMinutesText(String value) {
+        preferences.edit().putString(LAST_MINUTES_TEXT, value).commit();
+    }
+
+    public String getLastTitleText() {
+        return preferences.getString(LAST_TITLE_TEXT, null);
+    }
+
+    public void setLastTitleText(String value) {
+        preferences.edit().putString(LAST_TITLE_TEXT, value).commit();
+    }
+
+    public String getLastWakeTimeText() {
+        return preferences.getString(LAST_WAKE_TIME_TEXT, null);
+    }
+
+    public void setLastWakeTimeText(String value) {
+        preferences.edit().putString(LAST_WAKE_TIME_TEXT, value).commit();
+    }
+
     public class AlarmSettings {
         private final String ALARM_LABEL_KEY;
         private final int alarmIndex;
         private final Class<?> receiver;
         private final String ALARM_KEY;
         private final String ALARM_TRIGGERED_KEY;
+        private final String ALARM_SOUND_KEY;
         private final Integer defaultvalue;
         private final long scale;
         private final String defaultlabel;
@@ -58,6 +87,7 @@ public class Settings {
             this.defaultlabel = defaultlabel;
             ALARM_TRIGGERED_KEY = name + "_triggered";
             ALARM_LABEL_KEY = name + "_label";
+            ALARM_SOUND_KEY = name + "_sound";
             this.defaultvalue = defValue;
             this.scale = scale;
         }
@@ -169,6 +199,18 @@ public class Settings {
 
         private void setLabel(String value) {
             preferences.edit().putString(ALARM_LABEL_KEY, value).commit();
+        }
+
+        @Nullable
+        public Uri getSound() {
+            String result = preferences.getString(ALARM_SOUND_KEY, null);
+            if (result == null) {
+                return null;
+            }
+            return Uri.parse(result);
+        }
+        public void setSound(Uri value) {
+            preferences.edit().putString(ALARM_SOUND_KEY, value.toString()).commit();
         }
     }
 }

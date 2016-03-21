@@ -4,10 +4,16 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Seconds;
 
 import hamlah.pin.AcknowledgeActivity;
 import hamlah.pin.CountDownTimer;
@@ -22,6 +28,14 @@ public class CountdownService extends Service {
     private CountDownTimer countdown;
     private int countdownid = -1;
     private boolean supadead = false;
+    private DateTime last = DateTime.now();
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // update if the screen turns on
+            go(context);
+        }
+    };
 
     public CountdownService() {
     }
@@ -71,6 +85,7 @@ public class CountdownService extends Service {
         }
         if (isForeground) {
             stopForeground(true);
+            unregisterReceiver(receiver);
             isForeground = false;
         }
         if (countdown != null) {
@@ -133,12 +148,15 @@ public class CountdownService extends Service {
         String title;
         int content;
         boolean showSeconds;
+        DateTime now = DateTime.now(DateTimeZone.getDefault());
+        last = now;
         if (settings.main.isCounting()) {
+
             title = settings.main.getLabel();
             remaining = settings.main.remaining();
             content = R.string.main_alarm_detail;
             showSeconds = false;
-            updateCountdown(1, remaining, 60);
+            updateCountdown(1, remaining, 20);
 
             activity = AcknowledgeActivity.class;
 
@@ -161,6 +179,7 @@ public class CountdownService extends Service {
 
 
         Intent notificationIntent = new Intent(this, activity);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, INTENT_REQUEST_CODE, notificationIntent, 0);
         Notification notification = builder.setContentIntent(pendingIntent).build();
         if (isForeground) {
@@ -169,6 +188,9 @@ public class CountdownService extends Service {
         } else {
             Log.v(TAG, "showing notification with startForeground()");
             startForeground(NOTIFICATION_ID, notification);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_SCREEN_ON);
+            registerReceiver(receiver, filter);
             isForeground = true;
         }
         return true;
