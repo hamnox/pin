@@ -14,7 +14,7 @@ import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
 
 public class App extends Application {
-    private static final int PERMISSION_REQUEST = 1064;
+    private static final int PERMISSION_REQUEST = 67;
     private static boolean loggingEnabled = false;
 
     @Override
