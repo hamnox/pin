@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         Settings settings = new Settings(this);
         settings.setLastMinutesText(text);
         try {
-            Pattern pattern = Pattern.compile("^\\s*(?:([0-9])*\\s*:)?\\s*([0-9]*)\\s*$");
+            Pattern pattern = Pattern.compile("^\\s*(?:([0-9]*)\\s*:)?\\s*([0-9]*)\\s*$");
             Matcher matcher = pattern.matcher(text);
             if (!matcher.matches()) {
                 Log.v(TAG, "matcher doesn't match: '" + text + "'");
