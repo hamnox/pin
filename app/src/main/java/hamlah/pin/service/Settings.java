@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -105,7 +106,7 @@ public class Settings {
                 return false;
             }
             setLabel(label);
-            long end = SystemClock.elapsedRealtime() + value * scale;
+            long end = System.currentTimeMillis() + value * scale;
             _createAndroidAlarm(end);
             return true;
         }
@@ -124,7 +125,11 @@ public class Settings {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
             PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarmIndex, intent, 0);
 
-            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, end, alarmIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmMgr.setExact(AlarmManager.RTC_WAKEUP, end, alarmIntent);
+            } else {
+                alarmMgr.set(AlarmManager.RTC_WAKEUP, end, alarmIntent);
+            }
 
             setTime(end);
             Log.i(TAG, "alarm set: " + ALARM_KEY);
@@ -145,7 +150,7 @@ public class Settings {
             if (current < 0) {
                 return -1;
             }
-            return current - SystemClock.elapsedRealtime();
+            return current - System.currentTimeMillis();
         }
 
         public void disarm() {

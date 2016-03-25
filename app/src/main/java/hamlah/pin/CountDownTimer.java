@@ -96,7 +96,7 @@ public abstract class CountDownTimer {
             onFinish();
             return this;
         }
-        stopTimeInFuture = SystemClock.elapsedRealtime() + millisInFuture;
+        stopTimeInFuture = System.currentTimeMillis() + millisInFuture;
         mHandler.sendMessage(mHandler.obtainMessage(MSG));
         return this;
     }
@@ -129,7 +129,7 @@ public abstract class CountDownTimer {
                     return;
                 }
 
-                final long millisLeft = stopTimeInFuture - SystemClock.elapsedRealtime();
+                final long millisLeft = stopTimeInFuture - System.currentTimeMillis();
 
                 if (millisLeft <= 0) {
                     onFinish();
@@ -140,7 +140,7 @@ public abstract class CountDownTimer {
                     onTick(millisLeft);
 
                     // take into account user's onTick taking time to execute
-                    long delay = (stopTimeInFuture - SystemClock.elapsedRealtime()) % countdownInterval;
+                    long delay = (stopTimeInFuture - System.currentTimeMillis()) % countdownInterval;
 
                     sendMessageDelayed(obtainMessage(MSG), delay + 1);
                 }

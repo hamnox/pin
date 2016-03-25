@@ -82,7 +82,7 @@
         android:layout_alignLeft="@id/label_wrapper"
         android:layout_below="@id/label_wrapper"
         android:layout_marginTop="25dp"
-        />
+        tools:ignore="HardcodedText" />
     <Button
         android:id="@+id/acknowledgebutton"
         android:layout_width="match_parent"

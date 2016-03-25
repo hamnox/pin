@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -125,27 +126,40 @@ final class AsyncRingtonePlayer {
         final HandlerThread thread = new HandlerThread("ringtone-player");
         thread.start();
 
-        return new Handler(thread.getLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case EVENT_PLAY:
-                        final Uri ringtoneUri = msg.getData().getParcelable(RINGTONE_URI_KEY);
-                        if (getPlaybackDelegate().play(mContext, ringtoneUri)) {
-                            scheduleVolumeAdjustment();
-                        }
-                        break;
-                    case EVENT_STOP:
-                        getPlaybackDelegate().stop(mContext);
-                        break;
-                    case EVENT_VOLUME:
-                        if (getPlaybackDelegate().adjustVolume(mContext)) {
-                            scheduleVolumeAdjustment();
-                        }
-                        break;
-                }
+        return new Derp(thread.getLooper(), mContext, this);
+    }
+
+    private static class Derp extends Handler {
+
+
+        private final Context mContext;
+        private final AsyncRingtonePlayer player;
+
+        public Derp(Looper looper, Context mContext, AsyncRingtonePlayer player) {
+            super(looper);
+            this.mContext = mContext;
+            this.player = player;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case EVENT_PLAY:
+                    final Uri ringtoneUri = msg.getData().getParcelable(RINGTONE_URI_KEY);
+                    if (player.getPlaybackDelegate().play(mContext, ringtoneUri)) {
+                        player.scheduleVolumeAdjustment();
+                    }
+                    break;
+                case EVENT_STOP:
+                    player.getPlaybackDelegate().stop(mContext);
+                    break;
+                case EVENT_VOLUME:
+                    if (player.getPlaybackDelegate().adjustVolume(mContext)) {
+                        player.scheduleVolumeAdjustment();
+                    }
+                    break;
             }
-        };
+        }
     }
 
     /**
@@ -215,7 +229,6 @@ final class AsyncRingtonePlayer {
         checkAsyncRingtonePlayerThread();
 
         if (mPlaybackDelegate == null) {
-            //  if (Utils.isMOrLater()) {
             // Use the newer Ringtone-based playback delegate because it does not require
             // any permissions to read from the SD card. (M+)
             //     mPlaybackDelegate = new RingtonePlaybackDelegate();
@@ -332,10 +345,12 @@ final class AsyncRingtonePlayer {
             // do not play alarms if stream volume is 0 (typically because ringer mode is silent).
             if (mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
                 //if (true) {
-                player.setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    player.setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_ALARM)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build());
+                }
                 //}
 
                 player.setAudioStreamType(AudioManager.STREAM_ALARM);
@@ -485,10 +500,12 @@ final class AsyncRingtonePlayer {
             }
 
             //if (Utils.isLOrLater()) {
-            mRingtone.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ALARM)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mRingtone.setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build());
+            }
             //}
 
             // Attempt to adjust the ringtone volume if the user is in a telephone call.
