@@ -108,13 +108,18 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "paused, resumed: " + isResumed);
     }
 
+    /**
+     * Copied in both AcknowledgeActivity and MainActivity
+     */
     @Override
      public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
     }
-
+    /**
+     * Copied in both AcknowledgeActivity and MainActivity
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -125,15 +130,24 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
+    /**
+     * Copied in both AcknowledgeActivity and MainActivity
+     */
     private void showSettings() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        App.permissionResult(requestCode, permissions, grantResults);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        App.checkPermissions(this);
         isResumed = true;
         Log.i(TAG, "resumed, resumed: " + isResumed);
         Timers.armBotherAlarm(this, "mainactivity");
@@ -278,7 +292,6 @@ public class MainActivity extends AppCompatActivity {
         Settings settings = new Settings(this);
         settings.setLastMinutesText(null);
         settings.setLastTitleText(null);
-        finish();
     }
 
     @OnClick(R.id.acknowledgebutton)

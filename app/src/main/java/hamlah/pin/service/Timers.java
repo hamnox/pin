@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import hamlah.pin.App;
 import hamlah.pin.R;
 
 public class Timers {
@@ -29,6 +30,9 @@ public class Timers {
     }
 
     public static synchronized void log(String event, String alarmtype, Long timeleft, String label, Context context) {
+        if (!App.canLog()) {
+            Toast.makeText(context, R.string.seriouserror, Toast.LENGTH_LONG).show();
+        }
         PrintWriter out = null;
         try {
             File external = Environment.getExternalStorageDirectory();

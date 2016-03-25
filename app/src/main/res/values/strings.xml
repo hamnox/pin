@@ -6,7 +6,7 @@
     <string name="acknowledge">Got it</string>
     <string name="main_alarm_detail">%s remaining</string>
     <string name="bother_alarm_detail">You have %s...</string>
-    <string name="seriouserror">Serious error. check logcat.</string>
+    <string name="seriouserror">Serious error. Check logcat. Sdcard logging or alarms may be broken.</string>
     <string name="alarm_off">Pick next task</string>
     <string name="alarm_cancel">Done early</string>
     <string name="filler">filler</string>

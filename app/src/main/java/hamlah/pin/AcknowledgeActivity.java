@@ -7,6 +7,9 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -104,8 +107,14 @@ public class AcknowledgeActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        App.permissionResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        App.checkPermissions(this);
         isResumed = true;
         Log.i(TAG, "resumed, resumed: " + isResumed);
         Settings settings = new Settings(this);
@@ -142,5 +151,35 @@ public class AcknowledgeActivity extends AppCompatActivity {
             }
         };
         setNextCountDown(1);
+    }
+
+    /**
+     * Copied in both AcknowledgeActivity and MainActivity
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+    /**
+     * Copied in both AcknowledgeActivity and MainActivity
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings:
+                showSettings();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    /**
+     * Copied in both AcknowledgeActivity and MainActivity
+     */
+    private void showSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 }
