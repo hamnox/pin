@@ -174,8 +174,10 @@ public class CountdownService extends Service {
             return false;
         }
         builder.setContentTitle(title);
-        builder.setContentText(String.format(getString(content),
-                formatTime(remaining, showSeconds)));
+        String finalContent = String.format(getString(content),
+                formatTime(remaining, showSeconds));
+        builder.setContentText(finalContent);
+        builder.setStyle(new Notification.BigTextStyle().bigText(finalContent));
 
 
         Intent notificationIntent = new Intent(this, activity);

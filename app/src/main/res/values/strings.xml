@@ -23,4 +23,7 @@
     <string name="typoed">typoed</string>
     <string name="distracted">distracted</string>
     <string name="did_something_else">distracted by something else useful</string>
+    <string name="log_into_complice">Log Into Complice</string>
+    <string name="log_in">Log In</string>
+    <string name="nevermind_complice_task">Nevermind</string>
 </resources>

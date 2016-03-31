@@ -8,24 +8,46 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+import com.github.aurae.retrofit2.LoganSquareConverterFactory;
+
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 
 public class App extends Application {
     private static final int PERMISSION_REQUEST = 67;
     private static boolean loggingEnabled = false;
+    private static App app;
+    private Retrofit http;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        app = this;
         loggingEnabled = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED;
         JodaTimeAndroid.init(this);
+
         Timers.go(this);
         new Settings(this).refreshAlarms();
+
+        http = new Retrofit.Builder()
+                .baseUrl("https://complice.co:443")
+                .addConverterFactory(LoganSquareConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+    }
+
+    public static App app() {
+        return app;
+    }
+
+    public Retrofit http() {
+        return http;
     }
 
     public static void checkPermissions(Activity activity) {

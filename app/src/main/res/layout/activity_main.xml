@@ -11,11 +11,39 @@
     android:gravity="center_vertical"
     tools:context="hamlah.pin.MainActivity">
 
+    <RelativeLayout
+        android:id="@+id/complice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="0dp"
+        android:layout_margin="0dp">
+        <Button
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/complice_log_in"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/log_into_complice"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="0dp"/>
+        <Button
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/complice_nevermind_task"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/nevermind_complice_task"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="0dp"
+            android:visibility="gone"/>
+    </RelativeLayout>
+
     <android.support.design.widget.TextInputLayout
         android:id="@+id/label_wrapper"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:layout_below="@id/complice"
         android:hint="@string/default_alarm_name">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/label"
@@ -47,7 +75,7 @@
             android:inputType="datetime|time"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:textAlignment="viewEnd"
+            android:gravity="end"
             android:selectAllOnFocus="true"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -71,7 +99,7 @@
             android:inputType="datetime|time"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:textAlignment="viewEnd"
+            android:gravity="end"
             android:selectAllOnFocus="true"/>
     </android.support.design.widget.TextInputLayout>
     <TextView

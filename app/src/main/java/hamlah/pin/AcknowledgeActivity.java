@@ -17,6 +17,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import hamlah.pin.complice.CompliceTask;
 import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
@@ -39,14 +40,30 @@ public class AcknowledgeActivity extends AppCompatActivity {
     @Bind(R.id.label)
     TextView label;
 
+    private Settings settings;
+
     private void setNextCountDown(long time) {
         handler.postDelayed(countdownCallback, time);
     }
 
     @OnClick(R.id.offbutton)
-    public void onOffClicked(){
-        Timers.ackMainAlarm(this);
-        MainActivity.launch(this);
+    public void onOffClicked() {
+        complete(true);
+    }
+
+    public static void completeMainAlarm(Context context, boolean complete) {
+        Timers.ackMainAlarm(context);
+        Settings settings = new Settings(context);
+        CompliceTask task = settings.getCurrentActiveCompliceTask();
+        if (task != null) {
+            task.endAction(complete);
+        }
+        settings.setCurrentActiveCompliceTask(null);
+        MainActivity.launch(context);
+    }
+
+    private void complete(boolean isComplete) {
+        completeMainAlarm(this, isComplete);
         finish();
     }
 
@@ -92,6 +109,7 @@ public class AcknowledgeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settings = new Settings(this);
         setContentView(R.layout.activity_acknowledge_alarm);
         ButterKnife.bind(this);
 

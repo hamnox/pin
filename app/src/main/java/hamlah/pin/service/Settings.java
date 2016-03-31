@@ -9,12 +9,16 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.io.IOException;
 
 import hamlah.pin.BotherBotherReceiver;
 import hamlah.pin.BuildConfig;
 import hamlah.pin.MainTimerReceiver;
+import hamlah.pin.complice.CompliceTask;
 
 /**
  * Created by hamnox on 2/3/16.
@@ -25,6 +29,9 @@ public class Settings {
     private static final String LAST_MINUTES_TEXT = "lastMinutesText";
     private static final String LAST_TITLE_TEXT = "lastTitleText";
     private static final String LAST_WAKE_TIME_TEXT = "lastWakeTimeText";
+    private static final String LAST_WAITING_COMPLICE_TASK = "lastWaitingCompliceTask";
+    private static final String CURRENT_ACTIVE_COMPLICE_TASK = "currentActiveCompliceTask";
+    private static final String COMPLICE_TOKEN = "compliceAuthToken";
     private final SharedPreferences preferences;
 
     public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59, "Bother Countdown");
@@ -46,7 +53,7 @@ public class Settings {
     }
 
     public void setLastMinutesText(String value) {
-        preferences.edit().putString(LAST_MINUTES_TEXT, value).commit();
+        preferences.edit().putString(LAST_MINUTES_TEXT, value).apply();
     }
 
     public String getLastTitleText() {
@@ -54,7 +61,7 @@ public class Settings {
     }
 
     public void setLastTitleText(String value) {
-        preferences.edit().putString(LAST_TITLE_TEXT, value).commit();
+        preferences.edit().putString(LAST_TITLE_TEXT, value).apply();
     }
 
     public String getLastWakeTimeText() {
@@ -62,7 +69,59 @@ public class Settings {
     }
 
     public void setLastWakeTimeText(String value) {
-        preferences.edit().putString(LAST_WAKE_TIME_TEXT, value).commit();
+        preferences.edit().putString(LAST_WAKE_TIME_TEXT, value).apply();
+    }
+
+    public void setLastWaitingCompliceTask(@Nullable CompliceTask task) {
+        try {
+            preferences.edit().putString(LAST_WAITING_COMPLICE_TASK, task != null ? task.toJson() : null).apply();
+        } catch (IOException e) {
+            throw new RuntimeException("wtf?");
+        }
+    }
+
+    @Nullable
+    public CompliceTask getLastWaitingCompliceTask() {
+        String val = preferences.getString(LAST_WAITING_COMPLICE_TASK, null);
+        if (val == null) {
+            return null;
+        }
+        try {
+            return CompliceTask.fromJson(val);
+        } catch (IOException e) {
+            throw new RuntimeException("wtf? json didn't work? wat?");
+        }
+    }
+
+
+    public void setCurrentActiveCompliceTask(@Nullable CompliceTask task) {
+        try {
+            preferences.edit().putString(CURRENT_ACTIVE_COMPLICE_TASK, task != null ? task.toJson() : null).apply();
+        } catch (IOException e) {
+            throw new RuntimeException("wtf?");
+        }
+    }
+
+    @Nullable
+    public CompliceTask getCurrentActiveCompliceTask() {
+        String val = preferences.getString(CURRENT_ACTIVE_COMPLICE_TASK, null);
+        if (val == null) {
+            return null;
+        }
+        try {
+            return CompliceTask.fromJson(val);
+        } catch (IOException e) {
+            throw new RuntimeException("wtf? json didn't work? wat?");
+        }
+    }
+
+    public void setCompliceToken(String token) {
+        preferences.edit().putString(COMPLICE_TOKEN, token).commit();
+    }
+
+    @Nullable
+    public String getCompliceToken() {
+        return preferences.getString(COMPLICE_TOKEN, null);
     }
 
     public class AlarmSettings {
