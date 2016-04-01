@@ -2,9 +2,11 @@ package hamlah.pin.complice;
 
 import android.support.annotation.NonNull;
 
+import okhttp3.ResponseBody;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Observable;
 
@@ -17,5 +19,8 @@ public interface CompliceAPI {
                                         @Query("redirect_uri") String redirectUri);
 
     @GET("/api/u/newtabpage.json")
-    Observable<String> loadCurrentTask(@Header("Authorization") @NonNull String authorization);
+    Observable<CurrentTaskResponse> loadCurrentTask(@Header("Authorization") @NonNull String authorization);
+
+    @POST("/api/u/completeById/{id}")
+    Observable<ResponseBody> complete(@Header("Authorization") @NonNull String authorization, @Path("id")String id);
 }

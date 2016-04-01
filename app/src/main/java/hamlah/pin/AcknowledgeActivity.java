@@ -17,6 +17,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import hamlah.pin.complice.CompliceRemoteTask;
 import hamlah.pin.complice.CompliceTask;
 import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
@@ -70,25 +71,25 @@ public class AcknowledgeActivity extends AppCompatActivity {
     @OnClick(R.id.mark_did_something_else)
     public void markDidSomethingElse() {
         Timers.log("did_something_else", "main", null, null, this);
-        onOffClicked();
+        complete(false);
     }
 
     @OnClick(R.id.mark_distracted)
     public void markDistracted() {
         Timers.log("distracted", "main", null, null, this);
-        onOffClicked();
+        complete(false);
     }
 
     @OnClick(R.id.mark_failed)
     public void markFailed() {
         Timers.log("failed", "main", null, null, this);
-        onOffClicked();
+        complete(false);
     }
 
     @OnClick(R.id.mark_typoed)
     public void markTypoed() {
         Timers.log("typoed_alarm_settings", "main", null, null, this);
-        onOffClicked();
+        complete(false);
     }
 
 
@@ -169,6 +170,14 @@ public class AcknowledgeActivity extends AppCompatActivity {
             }
         };
         setNextCountDown(1);
+        updateComplice();
+    }
+
+    private void updateComplice() {
+        CompliceTask task = settings.getCurrentActiveCompliceTask();
+        if (task instanceof CompliceRemoteTask) {
+
+        }
     }
 
     /**

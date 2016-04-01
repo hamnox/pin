@@ -13,11 +13,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.bluelinelabs.logansquare.LoganSquare;
+
 import java.io.IOException;
 
 import hamlah.pin.BotherBotherReceiver;
 import hamlah.pin.BuildConfig;
 import hamlah.pin.MainTimerReceiver;
+import hamlah.pin.complice.CompliceRemoteTask;
 import hamlah.pin.complice.CompliceTask;
 
 /**
@@ -32,6 +35,7 @@ public class Settings {
     private static final String LAST_WAITING_COMPLICE_TASK = "lastWaitingCompliceTask";
     private static final String CURRENT_ACTIVE_COMPLICE_TASK = "currentActiveCompliceTask";
     private static final String COMPLICE_TOKEN = "compliceAuthToken";
+    private static final String CACHED_AVAILABLE_COMPLICE_TASK = "cachedAvailableCompliceTask";
     private final SharedPreferences preferences;
 
     public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59, "Bother Countdown");
@@ -89,7 +93,8 @@ public class Settings {
         try {
             return CompliceTask.fromJson(val);
         } catch (IOException e) {
-            throw new RuntimeException("wtf? json didn't work? wat?");
+            Log.e(TAG, "ERROR LOADING COMPLICE WAITING TASK: ", e);
+            return null;
         }
     }
 
@@ -111,7 +116,8 @@ public class Settings {
         try {
             return CompliceTask.fromJson(val);
         } catch (IOException e) {
-            throw new RuntimeException("wtf? json didn't work? wat?");
+            Log.e(TAG, "ERROR LOADING COMPLICE ACTIVE TASK: ", e);
+            return null;
         }
     }
 
@@ -122,6 +128,30 @@ public class Settings {
     @Nullable
     public String getCompliceToken() {
         return preferences.getString(COMPLICE_TOKEN, null);
+    }
+
+    public void setLastKnownRemoteTask(CompliceRemoteTask task) {
+
+        try {
+            preferences.edit().putString(CACHED_AVAILABLE_COMPLICE_TASK,
+                    task != null ? LoganSquare.serialize(task) : null).apply();
+        } catch (IOException e) {
+            throw new RuntimeException("wtf?");
+        }
+    }
+
+    @Nullable
+    public CompliceRemoteTask getLastKnownRemoteTask() {
+        try {
+            String value = preferences.getString(CACHED_AVAILABLE_COMPLICE_TASK, null);
+            if (value == null) {
+                return null;
+            }
+            return LoganSquare.parse(value, CompliceRemoteTask.class);
+        } catch (IOException e) {
+            Log.e(TAG, "ERROR LOADING COMPLICE TASK CACHE: ", e);
+            return null;
+        }
     }
 
     public class AlarmSettings {

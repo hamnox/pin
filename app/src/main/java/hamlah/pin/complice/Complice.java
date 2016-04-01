@@ -3,13 +3,17 @@ package hamlah.pin.complice;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.io.IOException;
 
 import hamlah.pin.App;
 import hamlah.pin.BuildConfig;
 import hamlah.pin.service.Settings;
 import rx.Observable;
+import rx.Subscriber;
 
 public class Complice {
     private static final String TAG = Complice.class.getSimpleName();
@@ -69,22 +73,48 @@ public class Complice {
         context.startActivity(i);
     }
 
-    public Observable<String> loadCurrentTasks() {
-        String token = getAuthToken();
+    public Observable<CompliceRemoteTask> getNextAction() {
+        Observable<CompliceRemoteTask> get = getAuthToken()
+                .flatMap(api::loadCurrentTask)
+                .map(currentTaskResponse -> {
+                    CompliceRemoteTask result = new CompliceRemoteTask(
+                            currentTaskResponse.colors != null
+                                    ? currentTaskResponse.colors.getIntColor()
+                                    : 0x666666,
+                            currentTaskResponse.nextAction.text,
+                            currentTaskResponse.nextAction.id,
+                            currentTaskResponse.nextAction.goalCode);
+                    new Settings(App.app()).setLastKnownRemoteTask(result);
+                    return result;
+                });
+        CompliceRemoteTask task = new Settings(App.app()).getLastKnownRemoteTask();
+        if (task != null) {
+            return Observable.just(task).concatWith(get);
+        } else {
+            return get;
+        }
+    }
+
+    @NonNull
+    private Observable<String> getAuthToken() {
+        String token = new Settings(App.app()).getCompliceToken();
         if (token == null) {
             return Observable.error(new RuntimeException("Not logged in lol"));
         }
-        return api.loadCurrentTask(token);
-    }
-
-    @Nullable
-    private String getAuthToken() {
-        String token = new Settings(App.app()).getCompliceToken();
-        if (token == null) {
-            return null;
-        }
-        return token + " Bearer";
+        return Observable.just("Bearer " + token);
     }
 
 
+    public Observable<String> finishAction(CompliceRemoteTask compliceRemoteTask) {
+        return getAuthToken()
+                .flatMap(token -> api.complete(token, compliceRemoteTask.getId()))
+                .flatMap(r -> Observable.create(s -> {
+                    try {
+                        s.onNext(r.string());
+                    } catch (IOException e) {
+                        s.onError(e);
+                    }
+                    s.onCompleted();
+                }));
+    }
 }

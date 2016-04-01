@@ -19,7 +19,7 @@ public class CompliceTask {
     String goText;
 
     @JsonField
-    int recommendedTime;
+    Integer recommendedTime;
 
     @JsonField
     String label;
@@ -28,7 +28,7 @@ public class CompliceTask {
 
     }
 
-    public CompliceTask(int color, String goText, int recommendedTime, String label) {
+    public CompliceTask(int color, String goText, Integer recommendedTime, String label) {
         this.color = color;
         this.goText = goText;
         this.recommendedTime = recommendedTime;

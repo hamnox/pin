@@ -5,10 +5,13 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.github.aurae.retrofit2.LoganSquareConverterFactory;
+import com.squareup.otto.Bus;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -22,6 +25,7 @@ public class App extends Application {
     private static boolean loggingEnabled = false;
     private static App app;
     private Retrofit http;
+    public Bus bus;
 
     @Override
     public void onCreate() {
@@ -40,6 +44,7 @@ public class App extends Application {
                 .addConverterFactory(LoganSquareConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
+        bus = new MainThreadBus();
     }
 
     public static App app() {
@@ -94,5 +99,18 @@ public class App extends Application {
 
     public static boolean canLog() {
         return loggingEnabled;
+    }
+
+    public class MainThreadBus extends Bus {
+        private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+        @Override
+        public void post(final Object event) {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                super.post(event);
+            } else {
+                mHandler.post(() -> MainThreadBus.super.post(event));
+            }
+        }
     }
 }

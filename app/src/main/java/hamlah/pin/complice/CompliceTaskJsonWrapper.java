@@ -10,7 +10,7 @@ public class CompliceTaskJsonWrapper {
     CompliceLoginTask loginTask;
 
     @JsonField
-    CompliceTask genericTask;
+    CompliceRemoteTask remoteTask;
 
     CompliceTaskJsonWrapper() {
 
@@ -19,8 +19,10 @@ public class CompliceTaskJsonWrapper {
     CompliceTaskJsonWrapper(CompliceTask task) {
         if (task instanceof CompliceLoginTask) {
             loginTask = (CompliceLoginTask) task;
+        } else if (task instanceof CompliceRemoteTask) {
+            remoteTask = (CompliceRemoteTask) task;
         } else {
-            genericTask = task;
+            throw new RuntimeException("Can't use generic complice tasks, sorry. if logansquare let us make it abstract we would");
         }
     }
 
@@ -28,8 +30,8 @@ public class CompliceTaskJsonWrapper {
         if (loginTask != null) {
             return loginTask;
         }
-        if (genericTask != null) {
-            return genericTask;
+        if (remoteTask != null) {
+            return remoteTask;
         }
         throw new NullPointerException();
     }

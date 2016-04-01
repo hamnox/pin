@@ -258,10 +258,11 @@ public class HUSLColorConverter {
         double U = tuple[1];
         double V = tuple[2];
 
-        double C = Math.pow(Math.pow(U, 2) + Math.pow(V, 2), 0.5);
+        double C = Math.sqrt(U * U + V * V);
         double Hrad = Math.atan2(V, U);
 
-        double H = Hrad * 180.0 / Math.PI;
+        // pi to more digits than they provide it in the stdlib
+        double H = (Hrad * 180.0) / 3.1415926535897932;
 
         if (H < 0) {
             H = 360 + H;
@@ -361,7 +362,7 @@ public class HUSLColorConverter {
     public static String rgbToHex(double[] tuple) {
         int[] prepared = rgbPrepare(tuple);
 
-        return String.format("#%02d%02d%02d",
+        return String.format("#%02x%02x%02x",
                 prepared[0],
                 prepared[1],
                 prepared[2]);
@@ -370,9 +371,9 @@ public class HUSLColorConverter {
     public static double[] hexToRgb(String hex) {
         return new double[]
                 {
-                        Integer.parseInt(hex.substring(1, 2), 16) / 255.0,
-                        Integer.parseInt(hex.substring(3, 2), 16) / 255.0,
-                        Integer.parseInt(hex.substring(5, 2), 16) / 255.0,
+                        Integer.parseInt(hex.substring(1, 3), 16) / 255.0,
+                        Integer.parseInt(hex.substring(3, 5), 16) / 255.0,
+                        Integer.parseInt(hex.substring(5, 7), 16) / 255.0,
                 };
     }
 
@@ -422,5 +423,23 @@ public class HUSLColorConverter {
     @SuppressWarnings("unused")
     public static double[] hexToHuslp(String s) {
         return rgbToHuslp(hexToRgb(s));
+    }
+
+    public static int hexToInt(String s) {
+        return rgbToInt(hexToRgb(s));
+    }
+
+    public static int rgbToInt(double[] rgb) {
+        return ((int)(rgb[0] * 255) << 16)
+                + ((int)(rgb[1] * 255) << 8)
+                + ((int)(rgb[2] * 255));
+    }
+
+    public static double[] intToRgb(int rgb24bit) {
+        return new double[] {
+                ((rgb24bit & 0xff0000) >> 16) / 255.0,
+                ((rgb24bit & 0x00ff00) >> 8) / 255.0,
+                (rgb24bit & 0x0000ff) / 255.0
+        };
     }
 }

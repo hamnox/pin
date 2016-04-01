@@ -4,10 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,8 +18,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.otto.Subscribe;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -28,6 +31,7 @@ import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +41,9 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import hamlah.pin.complice.Complice;
 import hamlah.pin.complice.CompliceLoginTask;
+import hamlah.pin.complice.CompliceRemoteTask;
 import hamlah.pin.complice.CompliceTask;
+import hamlah.pin.complice.CompliceTaskChangedEvent;
 import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
@@ -58,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     EditText minutesEditor;
 
     @Bind(R.id.label)
-    EditText label;
+    TextInputEditText label;
 
     @Bind(R.id.waketime)
     EditText waketime;
@@ -81,6 +87,14 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.complice_nevermind_task)
     Button compliceNevermind;
 
+    @Bind(R.id.complice_apply_action)
+    ImageButton compliceApplyTask;
+
+    @Bind(R.id.complice_task_label)
+    TextView compliceTaskLabel;
+
+
+
     @Nullable
     private Integer timerMinutes;
 
@@ -93,12 +107,14 @@ public class MainActivity extends AppCompatActivity {
     private DateTime nextwake;
     @Nullable
     private CompliceTask compliceWaitingTask;
+    @Nullable
+    private CompliceRemoteTask availableCompliceTask;
 
     @Nullable
     private String previousMinutesValue;
+
     @Nullable
     private String previousLabelValue;
-
     Settings settings;
 
     public static void launch(Context context) {
@@ -130,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        App.app().bus.unregister(this);
         countdownCallback = null;
         isResumed = false;
         Log.i(TAG, "paused");
@@ -170,38 +187,18 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         App.permissionResult(requestCode, permissions, grantResults);
     }
-
     @Override
     protected void onResume() {
         super.onResume();
         App.checkPermissions(this);
+        App.app().bus.register(this);
         isResumed = true;
         Log.i(TAG, "resumed");
         Timers.armBotherAlarm(this, "mainactivity");
 
         settings = new Settings(this);
 
-        if (Complice.get().isLoggedIn()) {
-            Complice.get().loadCurrentTasks()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<String>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.i(TAG, "done getting current tasks");
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.e(TAG, "Error getting current tasks", e);
-                        }
-
-                        @Override
-                        public void onNext(String s) {
-                            Log.i(TAG, "current tasks: " + s);
-                        }
-                    });
-        }
+        refreshCompliceTask();
         compliceWaitingTask = settings.getLastWaitingCompliceTask();
         updateComplice();
 
@@ -263,19 +260,90 @@ public class MainActivity extends AppCompatActivity {
         setNextCountDown(0);
     }
 
+
+    @Subscribe
+    public void onCompliceTaskChanged(CompliceTaskChangedEvent event) {
+        refreshCompliceTask();
+    }
+
+    public void refreshCompliceTask() {
+        if (Complice.get().isLoggedIn()) {
+            Complice.get().getNextAction()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<CompliceRemoteTask>() {
+                        @Override
+                        public void onCompleted() {
+                            Log.i(TAG, "done getting current tasks");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e(TAG, "Error getting current tasks", e);
+                        }
+
+                        @Override
+                        public void onNext(CompliceRemoteTask s) {
+                            availableCompliceTask = s;
+                            updateComplice();
+                        }
+                    });
+        }
+    }
+
+    private double smoothclamp(double in, double newcenter, double curvature, double scale) {
+        return Math.tanh((in - 50) / (50 * curvature)) * (scale * 50) + (100 * newcenter);
+    }
+
+    private int squashColor(int incolor) {
+        double[] husl = HUSLColorConverter.rgbToHusl(HUSLColorConverter.intToRgb(incolor));
+        double[] clamped = {
+                husl[0],
+                smoothclamp(husl[1], 0.6, 1, 0.3),
+                smoothclamp(husl[2], 0.5, 0.8, 0.3)
+        };
+        if (husl[1] < 1) {
+            // in case of zero saturation, let's not violently boost it.
+            clamped[1] = 0;
+        }
+        return HUSLColorConverter.rgbToInt(HUSLColorConverter.huslToRgb(clamped));
+    }
+
     private void updateComplice() {
+        logIntoComplice.setVisibility((compliceWaitingTask != null || Complice.get().isLoggedIn())
+                                    ? View.GONE : View.VISIBLE);
+        logIntoComplice.setVisibility((compliceWaitingTask != null || Complice.get().isLoggedIn())
+                ? View.GONE : View.VISIBLE);
+
         if (compliceWaitingTask != null) {
-            logIntoComplice.setVisibility(View.GONE);
-            thebutton.getBackground().setColorFilter(BUTTON_COLOR_ALPHA | compliceWaitingTask.getColor(), PorterDuff.Mode.MULTIPLY);
-            label.setHighlightColor(compliceWaitingTask.getColor());
-            thebutton.setText(compliceWaitingTask.getGoText());
+            thebutton.getBackground().setColorFilter(BUTTON_COLOR_ALPHA | squashColor(compliceWaitingTask.getColor()), PorterDuff.Mode.MULTIPLY);
+            label.setTextColor(0xff000000 | squashColor(compliceWaitingTask.getColor()));
+            setButtonText(compliceWaitingTask.getGoText());
             compliceNevermind.setVisibility(View.VISIBLE);
+            compliceTaskLabel.setVisibility(View.GONE);
+            compliceApplyTask.setVisibility(View.GONE);
         } else {
-            logIntoComplice.setVisibility(Complice.get().isLoggedIn() ? View.GONE : View.VISIBLE);
             label.setHighlightColor(ContextCompat.getColor(this, R.color.colorAccent));
             thebutton.getBackground().clearColorFilter();
-            thebutton.setText(R.string.set_alarm);
+            setButtonText(null);
             compliceNevermind.setVisibility(View.GONE);
+            if (availableCompliceTask != null) {
+                compliceTaskLabel.setTextColor(0xff000000 | squashColor(availableCompliceTask.getColor()));
+                compliceTaskLabel.setText(availableCompliceTask.getLabel());
+                compliceTaskLabel.setVisibility(View.VISIBLE);
+                compliceApplyTask.setVisibility(View.VISIBLE);
+            } else {
+                compliceTaskLabel.setVisibility(View.GONE);
+                compliceApplyTask.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void setButtonText(@Nullable String s) {
+        if (s == null) {
+            thebutton.setText(R.string.set_alarm);
+        } else {
+            thebutton.setText(s);
         }
     }
 
@@ -295,6 +363,16 @@ public class MainActivity extends AppCompatActivity {
             label.setText(previousLabelValue);
             previousLabelValue = null;
         }
+    }
+
+    @OnClick(R.id.complice_apply_action)
+    public void applyAvailableCompliceTask() {
+        if (availableCompliceTask == null) {
+            updateComplice();
+            return;
+        }
+
+        setWaitingCompliceTask(availableCompliceTask);
     }
 
     private void setWaitingCompliceTask(CompliceTask compliceTask) {
@@ -382,14 +460,6 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.sleep_until)
     public void onSleepClicked() {
-        if (true) {
-
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse("http://127.0.0.1/pinstickytimers/oauth/derp"));
-            startActivity(i);
-            finish();
-            return;
-        }
         onWakeTimeEdit();
         onLabelEdit();
         if (nextwake == null) {
