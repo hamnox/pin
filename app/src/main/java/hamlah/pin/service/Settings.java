@@ -130,30 +130,6 @@ public class Settings {
         return preferences.getString(COMPLICE_TOKEN, null);
     }
 
-    public void setLastKnownRemoteTask(CompliceRemoteTask task) {
-
-        try {
-            preferences.edit().putString(CACHED_AVAILABLE_COMPLICE_TASK,
-                    task != null ? LoganSquare.serialize(task) : null).apply();
-        } catch (IOException e) {
-            throw new RuntimeException("wtf?");
-        }
-    }
-
-    @Nullable
-    public CompliceRemoteTask getLastKnownRemoteTask() {
-        try {
-            String value = preferences.getString(CACHED_AVAILABLE_COMPLICE_TASK, null);
-            if (value == null) {
-                return null;
-            }
-            return LoganSquare.parse(value, CompliceRemoteTask.class);
-        } catch (IOException e) {
-            Log.e(TAG, "ERROR LOADING COMPLICE TASK CACHE: ", e);
-            return null;
-        }
-    }
-
     public class AlarmSettings {
         private final String ALARM_LABEL_KEY;
         private final int alarmIndex;

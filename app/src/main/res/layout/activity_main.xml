@@ -9,11 +9,12 @@
     android:paddingLeft="20dp"
     android:layout_centerInParent="true"
     android:gravity="center_vertical"
+    android:minHeight="400dp"
     tools:context="hamlah.pin.MainActivity">
 
     <RelativeLayout
         android:id="@+id/complice"
-        android:layout_width="match_parent"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:padding="0dp"
         android:layout_margin="0dp">
@@ -25,48 +26,69 @@
             android:text="@string/log_into_complice"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:visibility="gone"
             android:layout_marginBottom="0dp"/>
         <Button
             style="?android:attr/borderlessButtonStyle"
             android:id="@+id/complice_nevermind_task"
-            android:layout_width="200dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="@string/nevermind_complice_task"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="0dp"
             android:visibility="gone"/>
+
+        <ImageButton
+            android:id="@+id/complice_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_image_edit_complice"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:padding="3dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            style="?android:attr/borderlessButtonStyle"
+            android:contentDescription="@string/edit_complice" />
         <ImageButton
             android:id="@+id/complice_apply_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_action_editor_vertical_align_bottom"
-            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:visibility="gone"
+            android:layout_toLeftOf="@id/complice_edit"
+            android:padding="7dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             style="?android:attr/borderlessButtonStyle"
             android:contentDescription="@string/apply" />
         <TextView
             android:id="@+id/complice_task_label"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
             android:layout_toLeftOf="@id/complice_apply_action"
-            android:visibility="gone"
+            android:text="this is some text"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:layout_marginRight="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="14dp"
             />
     </RelativeLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/label_wrapper"
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@id/complice"
         android:hint="@string/default_alarm_name">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/label"
-            android:inputType="text|textCapWords|textAutoComplete|textAutoCorrect"
-            android:layout_width="300dp"
+            android:inputType="text|textAutoComplete|textAutoCorrect"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             />
     </android.support.design.widget.TextInputLayout>

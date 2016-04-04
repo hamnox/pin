@@ -1,9 +1,11 @@
 package hamlah.pin.complice;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 
 import com.bluelinelabs.logansquare.annotation.JsonObject;
 
@@ -24,7 +26,14 @@ public class CompliceLoginTask extends CompliceTask {
 
     @Override
     public boolean startAction(Context context) {
-        Complice.get().launchLogin(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(R.string.login_process)
+                .setCancelable(false)
+                .setPositiveButton(R.string.open_complice, (dialog, id) -> {
+                    Complice.get().launchLogin(context);
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
         return true;
     }
 }

@@ -27,4 +27,14 @@
     <string name="log_in">Log In</string>
     <string name="nevermind_complice_task">Nevermind</string>
     <string name="apply">apply</string>
+    <string name="edit_complice">Edit Complice</string>
+    <string name="enter_day_intentions_complice">Enter Today\'s Intentions</string>
+    <string name="enter_day_outcomes_complice">Enter Today\'s Outcomes</string>
+    <string name="underestimated_time">Underestimated Time</string>
+    <string name="subtask_done">Subtask Done</string>
+    <string name="refreshing_complice">Refreshing complice task</string>
+    <string name="error_finishing">Hey sorry, there was a network error while saving that you finished that</string>
+    <string name="edit_simple">edit</string>
+    <string name="login_process">Hey! To log into complice, you\'ll need to allow Stride access to your account, and then open the access in Stride so the app can connect. Ready?</string>
+    <string name="open_complice">Open Complice</string>
 </resources>

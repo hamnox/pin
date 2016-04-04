@@ -3,6 +3,7 @@ package hamlah.pin;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -80,15 +81,21 @@ public class AcknowledgeActivity extends AppCompatActivity {
         complete(false);
     }
 
-    @OnClick(R.id.mark_failed)
-    public void markFailed() {
-        Timers.log("failed", "main", null, null, this);
-        complete(false);
-    }
-
     @OnClick(R.id.mark_typoed)
     public void markTypoed() {
         Timers.log("typoed_alarm_settings", "main", null, null, this);
+        complete(false);
+    }
+
+    @OnClick(R.id.mark_underestimated)
+    public void markUnderestimated() {
+        Timers.log("underestimated_duration", "main", null, null, this);
+        complete(false);
+    }
+
+    @OnClick(R.id.mark_partial)
+    public void markSubtaskDone() {
+        Timers.log("subtask_done", "main", null, null, this);
         complete(false);
     }
 
@@ -175,8 +182,11 @@ public class AcknowledgeActivity extends AppCompatActivity {
 
     private void updateComplice() {
         CompliceTask task = settings.getCurrentActiveCompliceTask();
-        if (task instanceof CompliceRemoteTask) {
-
+        if (task != null) {
+            offbutton.getBackground().setColorFilter(0xff000000 | task.getSquashedColor(),
+                    PorterDuff.Mode.MULTIPLY);
+        } else {
+            offbutton.getBackground().clearColorFilter();
         }
     }
 

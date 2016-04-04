@@ -19,7 +19,7 @@ public interface CompliceAPI {
                                         @Query("redirect_uri") String redirectUri);
 
     @GET("/api/u/newtabpage.json")
-    Observable<CurrentTaskResponse> loadCurrentTask(@Header("Authorization") @NonNull String authorization);
+    Observable<ResponseBody> loadCurrentTask(@Header("Authorization") @NonNull String authorization);
 
     @POST("/api/u/completeById/{id}")
     Observable<ResponseBody> complete(@Header("Authorization") @NonNull String authorization, @Path("id")String id);

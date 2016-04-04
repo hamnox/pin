@@ -31,7 +31,7 @@ import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.Arrays;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +40,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import hamlah.pin.complice.Complice;
+import hamlah.pin.complice.CompliceEditTask;
 import hamlah.pin.complice.CompliceLoginTask;
 import hamlah.pin.complice.CompliceRemoteTask;
 import hamlah.pin.complice.CompliceTask;
@@ -90,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.complice_apply_action)
     ImageButton compliceApplyTask;
 
+    @Bind(R.id.complice_edit)
+    ImageButton compliceEditButton;
+
     @Bind(R.id.complice_task_label)
     TextView compliceTaskLabel;
 
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     @Nullable
     private CompliceTask compliceWaitingTask;
     @Nullable
-    private CompliceRemoteTask availableCompliceTask;
+    private CompliceTask availableCompliceTask;
 
     @Nullable
     private String previousMinutesValue;
@@ -261,6 +265,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @OnClick(R.id.complice_task_label)
+    public void onReload() {
+        refreshCompliceTask();
+        Toast.makeText(this, R.string.refreshing_complice, Toast.LENGTH_SHORT).show();
+    }
+
     @Subscribe
     public void onCompliceTaskChanged(CompliceTaskChangedEvent event) {
         refreshCompliceTask();
@@ -271,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
             Complice.get().getNextAction()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<CompliceRemoteTask>() {
+                    .subscribe(new Subscriber<CompliceTask>() {
                         @Override
                         public void onCompleted() {
                             Log.i(TAG, "done getting current tasks");
@@ -283,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onNext(CompliceRemoteTask s) {
+                        public void onNext(CompliceTask s) {
                             availableCompliceTask = s;
                             updateComplice();
                         }
@@ -291,49 +301,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private double smoothclamp(double in, double newcenter, double curvature, double scale) {
-        return Math.tanh((in - 50) / (50 * curvature)) * (scale * 50) + (100 * newcenter);
-    }
-
-    private int squashColor(int incolor) {
-        double[] husl = HUSLColorConverter.rgbToHusl(HUSLColorConverter.intToRgb(incolor));
-        double[] clamped = {
-                husl[0],
-                smoothclamp(husl[1], 0.6, 1, 0.3),
-                smoothclamp(husl[2], 0.5, 0.8, 0.3)
-        };
-        if (husl[1] < 1) {
-            // in case of zero saturation, let's not violently boost it.
-            clamped[1] = 0;
-        }
-        return HUSLColorConverter.rgbToInt(HUSLColorConverter.huslToRgb(clamped));
-    }
-
     private void updateComplice() {
-        logIntoComplice.setVisibility((compliceWaitingTask != null || Complice.get().isLoggedIn())
-                                    ? View.GONE : View.VISIBLE);
-        logIntoComplice.setVisibility((compliceWaitingTask != null || Complice.get().isLoggedIn())
-                ? View.GONE : View.VISIBLE);
+        logIntoComplice.setVisibility(!(compliceWaitingTask != null || Complice.get().isLoggedIn()) ? View.VISIBLE : View.GONE);
+        compliceEditButton.setVisibility((Complice.get().isLoggedIn() && compliceWaitingTask == null) ? View.VISIBLE : View.GONE);
 
         if (compliceWaitingTask != null) {
-            thebutton.getBackground().setColorFilter(BUTTON_COLOR_ALPHA | squashColor(compliceWaitingTask.getColor()), PorterDuff.Mode.MULTIPLY);
-            label.setTextColor(0xff000000 | squashColor(compliceWaitingTask.getColor()));
+            thebutton.getBackground().setColorFilter(BUTTON_COLOR_ALPHA | compliceWaitingTask.getSquashedColor(), PorterDuff.Mode.MULTIPLY);
+            label.setTextColor(0xff000000 | compliceWaitingTask.getSquashedColor());
             setButtonText(compliceWaitingTask.getGoText());
             compliceNevermind.setVisibility(View.VISIBLE);
             compliceTaskLabel.setVisibility(View.GONE);
             compliceApplyTask.setVisibility(View.GONE);
         } else {
-            label.setHighlightColor(ContextCompat.getColor(this, R.color.colorAccent));
+            //label.setHighlightColor(ContextCompat.getColor(this, R.color.colorAccent));
+            label.setTextColor(ContextCompat.getColor(this, R.color.labelcolor));
             thebutton.getBackground().clearColorFilter();
             setButtonText(null);
             compliceNevermind.setVisibility(View.GONE);
             if (availableCompliceTask != null) {
-                compliceTaskLabel.setTextColor(0xff000000 | squashColor(availableCompliceTask.getColor()));
+                compliceTaskLabel.setTextColor(0xff000000 | availableCompliceTask.getSquashedColor());
                 compliceTaskLabel.setText(availableCompliceTask.getLabel());
                 compliceTaskLabel.setVisibility(View.VISIBLE);
-                compliceApplyTask.setVisibility(View.VISIBLE);
             } else {
                 compliceTaskLabel.setVisibility(View.GONE);
+            }
+            if (availableCompliceTask != null && !(availableCompliceTask instanceof CompliceEditTask)) {
+
+                compliceApplyTask.setVisibility(View.VISIBLE);
+            } else {
                 compliceApplyTask.setVisibility(View.GONE);
             }
         }
@@ -344,6 +339,15 @@ public class MainActivity extends AppCompatActivity {
             thebutton.setText(R.string.set_alarm);
         } else {
             thebutton.setText(s);
+        }
+    }
+
+    @OnClick(R.id.complice_edit)
+    public void editComplice() {
+        if (availableCompliceTask instanceof CompliceEditTask) {
+            setWaitingCompliceTask(availableCompliceTask);
+        } else {
+            setWaitingCompliceTask(new CompliceEditTask(this, false, false));
         }
     }
 
@@ -380,7 +384,8 @@ public class MainActivity extends AppCompatActivity {
         if (compliceTask != null) {
             if (compliceTask.getRecommendedTime() != null) {
                 previousMinutesValue = minutesEditor.getText().toString();
-                minutesEditor.setText(String.format("%d", compliceTask.getRecommendedTime()));
+                minutesEditor.setText(String.format(Locale.ENGLISH,
+                        "%d", compliceTask.getRecommendedTime()));
             }
             previousLabelValue = label.getText().toString();
             label.setText(compliceTask.getLabel());
@@ -395,6 +400,11 @@ public class MainActivity extends AppCompatActivity {
             intentLaunched = compliceWaitingTask.startAction(this);
             settings.setLastWaitingCompliceTask(null);
             settings.setCurrentActiveCompliceTask(compliceWaitingTask);
+            String id = null;
+            if (compliceWaitingTask instanceof CompliceRemoteTask) {
+                id = ((CompliceRemoteTask)compliceWaitingTask).getId();
+            }
+            Timers.log("complice_task_start", "main", null, "" + id, this);
             compliceWaitingTask = null;
         } else {
             settings.setCurrentActiveCompliceTask(null);

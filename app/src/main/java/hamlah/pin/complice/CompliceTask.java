@@ -10,6 +10,8 @@ import com.bluelinelabs.logansquare.annotation.JsonObject;
 
 import java.io.IOException;
 
+import hamlah.pin.HUSLColorConverter;
+
 @JsonObject
 public class CompliceTask {
     @JsonField
@@ -65,5 +67,27 @@ public class CompliceTask {
 
     public static CompliceTask fromJson(String input) throws IOException {
         return LoganSquare.parse(input, CompliceTaskJsonWrapper.class).get();
+    }
+
+    private double smoothclamp(double in, double newcenter, double curvature, double scale) {
+        return Math.tanh((in - 50) / (50 * curvature)) * (scale * 50) + (100 * newcenter);
+    }
+
+    private int squashColor(int incolor) {
+        double[] husl = HUSLColorConverter.rgbToHusl(HUSLColorConverter.intToRgb(incolor));
+        double[] clamped = {
+                husl[0],
+                smoothclamp(husl[1], 0.6, 1, 0.3),
+                smoothclamp(husl[2], 0.5, 0.8, 0.3)
+        };
+        if (husl[1] < 1) {
+            // in case of zero saturation, let's not violently boost it.
+            clamped[1] = 0;
+        }
+        return HUSLColorConverter.rgbToInt(HUSLColorConverter.huslToRgb(clamped));
+    }
+
+    public int getSquashedColor() {
+        return squashColor(getColor());
     }
 }

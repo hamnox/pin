@@ -19,14 +19,31 @@ class CurrentTaskResponse {
     int totalIntentions;
 
     @JsonField(name="linkifiedNexaHtml")
+    @Nullable
     String _linkNextActionText;
 
     @JsonField(name="goalName")
+    @Nullable
     String goalName;
 
     @JsonField(name = "colors")
     @Nullable
     ActionColors colors;
+
+
+    /// above fields are filled if we have tasks. these are filled if we don't.
+
+
+
+    @JsonField(name="username")
+    @Nullable
+    String username;
+
+    @JsonField(name="noIntentions")
+    boolean noIntentions = false;
+
+    @JsonField(name="submitOutcomes")
+    boolean submitOutcomes = false;
 
     @JsonObject
     static class NextAction {

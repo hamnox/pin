@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.bluelinelabs.logansquare.LoganSquare;
+
 import java.io.IOException;
 
 import hamlah.pin.App;
@@ -14,6 +16,7 @@ import hamlah.pin.BuildConfig;
 import hamlah.pin.service.Settings;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func1;
 
 public class Complice {
     private static final String TAG = Complice.class.getSimpleName();
@@ -73,26 +76,32 @@ public class Complice {
         context.startActivity(i);
     }
 
-    public Observable<CompliceRemoteTask> getNextAction() {
-        Observable<CompliceRemoteTask> get = getAuthToken()
+    public Observable<CompliceTask> getNextAction() {
+        return getAuthToken()
                 .flatMap(api::loadCurrentTask)
+                .flatMap(r -> Observable.create((Observable.OnSubscribe<CurrentTaskResponse>) s -> {
+                    try {
+                        String result = r.string();
+                        Log.i(TAG, "response: " + result);
+
+                        s.onNext(LoganSquare.parse(result, CurrentTaskResponse.class));
+                    } catch (IOException e) {
+                        s.onError(e);
+                    }
+                    s.onCompleted();
+                }))
                 .map(currentTaskResponse -> {
-                    CompliceRemoteTask result = new CompliceRemoteTask(
+                    if (currentTaskResponse.noIntentions) {
+                        return new CompliceEditTask(App.app(), true, true);
+                    }
+                    return new CompliceRemoteTask(
                             currentTaskResponse.colors != null
                                     ? currentTaskResponse.colors.getIntColor()
                                     : 0x666666,
                             currentTaskResponse.nextAction.text,
                             currentTaskResponse.nextAction.id,
                             currentTaskResponse.nextAction.goalCode);
-                    new Settings(App.app()).setLastKnownRemoteTask(result);
-                    return result;
                 });
-        CompliceRemoteTask task = new Settings(App.app()).getLastKnownRemoteTask();
-        if (task != null) {
-            return Observable.just(task).concatWith(get);
-        } else {
-            return get;
-        }
     }
 
     @NonNull
@@ -116,5 +125,11 @@ public class Complice {
                     }
                     s.onCompleted();
                 }));
+    }
+
+    public void launchEdit(Context context) {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(BuildConfig.COMPLICE_TODAY_URL));
+        context.startActivity(i);
     }
 }

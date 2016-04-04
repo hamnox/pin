@@ -16,6 +16,24 @@ repositories {
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
+def gitversion = "[unknown]";
+try {
+    def stderr = new StringBuilder()
+    def stdout = new StringBuilder()
+    def process = "git log -n 20".execute()
+    def filter = ["egrep", "--only-matching", "^commit.*"].execute()
+    filter.consumeProcessOutput(stdout, stderr)
+    process.consumeProcessErrorStream(stderr)
+    process | filter
+    filter.waitFor()
+    gitversion = stdout.toString().replace("\n", "\\n")
+    if (stderr.length()) {
+        throw new Exception(stderr.toString())
+    }
+} catch (Throwable t) {
+    logger.error("error", t)
+}
+
 // must be applied last
 apply plugin: 'me.tatarka.retrolambda'
 
@@ -38,12 +56,14 @@ android {
         applicationId "hamlah.pin"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 5
-        versionName "1.0.3"
+        versionCode 7
+        versionName "1.0.7"
+        buildConfigField "String", "COMPLICE_TODAY_URL", quotes_or_null("https://complice.co/today")
         buildConfigField "String", "CLIENT_ID", quotes_or_null(project.properties["COMPLICE_CLIENT_ID"])
         buildConfigField "String", "CLIENT_SECRET", quotes_or_null(project.properties["COMPLICE_CLIENT_SECRET"])
         buildConfigField "String", "REDIRECT_URI_HOST", quotes_or_null(project.properties["COMPLICE_REDIRECT_URI_HOST"])
         buildConfigField "String", "REDIRECT_URI_PATH", quotes_or_null(project.properties["COMPLICE_REDIRECT_URI_PATH"])
+        buildConfigField "String", "GIT_VERSION", quotes_or_null(gitversion)
         manifestPlaceholders = [redirectUriHost: string_or_empty(project.properties["COMPLICE_REDIRECT_URI_HOST"]),
                                 redirectUriPath: string_or_empty(project.properties["COMPLICE_REDIRECT_URI_PATH"])]
     }
