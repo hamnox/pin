@@ -19,4 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="@string/button_set_bother"/>
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:text="@string/show_complice"
+        android:id="@+id/show_complice"/>
 </LinearLayout>

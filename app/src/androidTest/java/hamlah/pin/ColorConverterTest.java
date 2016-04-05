@@ -6,8 +6,6 @@ import android.util.Log;
 
 import com.bluelinelabs.logansquare.LoganSquare;
 
-import junit.framework.Assert;
-
 import java.io.IOException;
 import java.util.Map;
 

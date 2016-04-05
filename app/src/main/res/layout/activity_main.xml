@@ -46,7 +46,7 @@
             android:src="@drawable/ic_image_edit_complice"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:padding="3dp"
+            android:padding="7dp"
             android:minHeight="0dp"
             android:minWidth="0dp"
             style="?android:attr/borderlessButtonStyle"
@@ -55,7 +55,7 @@
             android:id="@+id/complice_apply_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_action_editor_vertical_align_bottom"
+            android:src="@drawable/ic_editor_vertical_align_bottom"
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@id/complice_edit"
             android:padding="7dp"
@@ -84,12 +84,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@id/complice"
+        android:paddingLeft="0dp"
         android:hint="@string/default_alarm_name">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/label"
             android:inputType="text|textAutoComplete|textAutoCorrect"
             android:layout_width="320dp"
             android:layout_height="wrap_content"
+            android:paddingLeft="0dp"
             />
     </android.support.design.widget.TextInputLayout>
 
@@ -108,6 +110,7 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/thebutton"
         android:layout_below="@id/label_wrapper"
+        android:paddingLeft="0dp"
         android:layout_marginTop="10dp">
 
         <android.support.design.widget.TextInputEditText
@@ -115,6 +118,7 @@
             android:inputType="datetime|time"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
+            android:paddingLeft="0dp"
             android:gravity="end"
             android:selectAllOnFocus="true"/>
     </android.support.design.widget.TextInputLayout>
@@ -133,11 +137,13 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/sleep_until"
         android:layout_toLeftOf="@id/sleep_until"
+        android:paddingLeft="0dp"
         android:hint="@string/waketime">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/waketime"
             android:inputType="datetime|time"
             android:layout_width="100dp"
+            android:paddingLeft="0dp"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:selectAllOnFocus="true"/>
@@ -162,4 +168,16 @@
         android:layout_marginTop="5dp"
         android:visibility="gone"
         />
+    <ImageButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_settings"
+        android:layout_alignLeft="@id/label_wrapper"
+        android:layout_below="@id/timerminutes_wrapper"
+        android:padding="7dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:contentDescription="@string/apply" />
 </RelativeLayout>

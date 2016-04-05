@@ -3,7 +3,6 @@ package hamlah.pin;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;

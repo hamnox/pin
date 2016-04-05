@@ -8,9 +8,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,7 +15,6 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import hamlah.pin.complice.CompliceRemoteTask;
 import hamlah.pin.complice.CompliceTask;
 import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
@@ -190,32 +186,12 @@ public class AcknowledgeActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * Copied in both AcknowledgeActivity and MainActivity
      */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-    /**
-     * Copied in both AcknowledgeActivity and MainActivity
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                showSettings();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    /**
-     * Copied in both AcknowledgeActivity and MainActivity
-     */
-    private void showSettings() {
+    @OnClick(R.id.settings)
+    public void showSettings() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }

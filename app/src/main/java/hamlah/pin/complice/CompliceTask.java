@@ -1,8 +1,6 @@
 package hamlah.pin.complice;
 
 import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.bluelinelabs.logansquare.LoganSquare;
 import com.bluelinelabs.logansquare.annotation.JsonField;
@@ -78,7 +76,7 @@ public class CompliceTask {
         double[] clamped = {
                 husl[0],
                 smoothclamp(husl[1], 0.6, 1, 0.3),
-                smoothclamp(husl[2], 0.5, 0.8, 0.3)
+                smoothclamp(husl[2], 0.65, 0.9, 0.2)
         };
         if (husl[1] < 1) {
             // in case of zero saturation, let's not violently boost it.

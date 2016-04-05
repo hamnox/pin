@@ -8,19 +8,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
-import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-import com.bluelinelabs.logansquare.LoganSquare;
 
 import java.io.IOException;
 
 import hamlah.pin.BotherBotherReceiver;
 import hamlah.pin.BuildConfig;
 import hamlah.pin.MainTimerReceiver;
-import hamlah.pin.complice.CompliceRemoteTask;
 import hamlah.pin.complice.CompliceTask;
 
 /**
@@ -35,6 +30,7 @@ public class Settings {
     private static final String LAST_WAITING_COMPLICE_TASK = "lastWaitingCompliceTask";
     private static final String CURRENT_ACTIVE_COMPLICE_TASK = "currentActiveCompliceTask";
     private static final String COMPLICE_TOKEN = "compliceAuthToken";
+    private static final String SHOW_COMPLICE = "showComplice";
     private static final String CACHED_AVAILABLE_COMPLICE_TASK = "cachedAvailableCompliceTask";
     private final SharedPreferences preferences;
 
@@ -128,6 +124,14 @@ public class Settings {
     @Nullable
     public String getCompliceToken() {
         return preferences.getString(COMPLICE_TOKEN, null);
+    }
+
+    public void setShowComplice(boolean show) {
+        preferences.edit().putBoolean(SHOW_COMPLICE, show).commit();
+    }
+
+    public boolean getShowComplice() {
+        return preferences.getBoolean(SHOW_COMPLICE, true);
     }
 
     public class AlarmSettings {

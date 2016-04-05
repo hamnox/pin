@@ -1,9 +1,6 @@
 package hamlah.pin.complice;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 

@@ -21,7 +21,6 @@ package hamlah.pin;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 
 /**
  * Schedule a countdown until a time in the future, with

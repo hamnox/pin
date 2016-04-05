@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.bluelinelabs.logansquare.LoganSquare;
@@ -15,8 +14,6 @@ import hamlah.pin.App;
 import hamlah.pin.BuildConfig;
 import hamlah.pin.service.Settings;
 import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func1;
 
 public class Complice {
     private static final String TAG = Complice.class.getSimpleName();

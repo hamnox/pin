@@ -11,28 +11,25 @@
     android:keepScreenOn="true"
     tools:context=".AcknowledgeActivity">
 
-    <Button
-        android:id="@+id/offbutton"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/alarm_off"
-        android:drawableLeft="@drawable/ic_action_done"
-        />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/offbutton"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:textAlignment="viewEnd"
+        android:textSize="30dp"
+        android:gravity="end"
         android:id="@+id/label"
+        android:textColor="@color/countdown_title"
         android:text="@string/filler"
         />
     <TextView
-        android:layout_below="@id/offbutton"
-        android:layout_centerHorizontal="true"
+        android:layout_below="@id/label"
+        android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/countdown"
+        android:textColor="@color/countdown_label"
         android:text="@string/filler"
         />
 
@@ -41,42 +38,73 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/small_button_height"
         android:text="@string/typoed"
         android:drawableLeft="@drawable/ic_image_edit"
+        android:drawablePadding="@dimen/ack_button_padding"
         />
     <Button
         android:id="@+id/mark_distracted"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/mark_typoed"
+        android:layout_alignParentLeft="true"
+        android:layout_above="@id/mark_typoed"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/small_button_height"
+        android:drawableLeft="@drawable/ic_content_gesture"
         android:text="@string/distracted"
+        android:drawablePadding="@dimen/ack_button_padding"
         />
     <Button
         android:id="@+id/mark_did_something_else"
-        android:layout_above="@id/mark_typoed"
+        android:layout_above="@id/mark_distracted"
         android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/small_button_height"
         android:text="@string/did_something_else"
+        android:drawableLeft="@drawable/ic_communication_call_split"
+        android:drawablePadding="@dimen/ack_button_padding"
         />
     <Button
         android:id="@+id/mark_underestimated"
         android:layout_above="@id/mark_did_something_else"
         android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/small_button_height"
+        android:drawableLeft="@drawable/ic_action_schedule"
         android:text="@string/underestimated_time"
+        android:drawablePadding="@dimen/ack_button_padding"
         />
     <Button
         android:id="@+id/mark_partial"
         android:layout_above="@id/mark_underestimated"
         android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/large_button_height"
         android:text="@string/subtask_done"
+        android:drawableLeft="@drawable/ic_image_rotate_right"
+        android:drawablePadding="@dimen/ack_button_padding"
         />
+    <Button
+        android:id="@+id/offbutton"
+        android:layout_above="@id/mark_partial"
+        android:layout_alignParentLeft="true"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/large_button_height"
+        android:text="@string/alarm_off"
+        android:drawableLeft="@drawable/ic_action_done"
+        android:drawablePadding="@dimen/ack_button_padding"
+        />
+    <ImageButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_settings"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:padding="7dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:contentDescription="@string/apply" />
 
 
 </RelativeLayout>
