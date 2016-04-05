@@ -24,7 +24,7 @@ public class CompliceRemoteTask extends CompliceTask {
 
     private static final String TAG = CompliceRemoteTask.class.getSimpleName();
     public static final Pattern TIME_PATTERN = Pattern.compile("([0-9]+)\\s*(?:(m|mins?|minutes?)|(hs?|hours?))(?![a-z])\\s*[,.;!]?\\s*");
-    public static final Pattern PARENS_PATTERN = Pattern.compile("\\(([^()]*)\\)\\s*");
+    public static final Pattern PARENS_PATTERN = Pattern.compile("\\(([^()]*)(\\)\\s*)");
 
     @JsonField
     String id;
@@ -59,6 +59,12 @@ public class CompliceRemoteTask extends CompliceTask {
             if (result.first != null) {
                 if (result.second.equals("")) {
                     String removed = this.label.substring(0, match.start())
+                            + this.label.substring(match.end(), this.label.length());
+                    result = new Pair<>(result.first, removed.trim());
+                } else {
+                    String removed = this.label.substring(0, match.start() + 1)
+                            + result.second
+                            + match.group(2)
                             + this.label.substring(match.end(), this.label.length());
                     result = new Pair<>(result.first, removed.trim());
                 }
