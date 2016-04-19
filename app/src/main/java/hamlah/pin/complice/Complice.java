@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import com.bluelinelabs.logansquare.LoganSquare;
@@ -11,6 +12,8 @@ import com.bluelinelabs.logansquare.LoganSquare;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import hamlah.pin.App;
 import hamlah.pin.BuildConfig;
@@ -134,22 +137,51 @@ public class Complice {
     }
 
     public Observable<ArrayList<CompliceRemoteTask>> getActionList() {
-        return getAuthToken()
+
+        Observable<CompliceList> list = getAuthToken()
                 .flatMap(token -> api.loadToday(token))
-                .flatMap(r -> Observable.create(s -> {
-                    try {
-                        PrintWriter out = new PrintWriter("/sdcard/loglol.txt");
-                        final String string = r.string();
-                        out.write(string);
-                        out.close();
-                        Log.i(TAG, "Response: " + string);
-                        CompliceList result = LoganSquare.parse(string, CompliceList.class);
-                        ArrayList<CompliceRemoteTask> tasks = new ArrayList<>(result.todolist.size());
-                        for (CompliceList.CompliceTodoItem item : result.todolist) {
-                            tasks.add(new CompliceRemoteTask(item.color, item.text, item.id, item.code,
-                                                            item.done, item.nevermind));
+                .flatMap(response -> Observable.create(s -> {
+                            try {
+                                final String string = response.string();
+                                CompliceList result = LoganSquare.parse(string, CompliceList.class);
+                                s.onNext(result);
+                            } catch (IOException e) {
+                                s.onError(e);
+                            }
+                            s.onCompleted();
+                        }));
+        Observable<HashMap<String,Integer>> colors = getGoals()
+                .map(goals -> {
+                    HashMap<String,Integer> colorMap = new HashMap<>();
+                    for (CompliceGoalResponseItem item : goals) {
+                        colorMap.put(item.code, item.getIntColor());
+                    }
+                    return colorMap;
+                });
+
+        // FIXME: for now, combine with getGoals() so we get colors. malcolm said he'd add them here?
+        return Observable.combineLatest(list, colors, Pair::new)
+                .map(pair -> {
+                    ArrayList<CompliceRemoteTask> tasks = new ArrayList<>(pair.first.todolist.size());
+                    for (CompliceList.CompliceTodoItem item : pair.first.todolist) {
+                        Integer color = pair.second.get(item.code);
+                        if (color == null) {
+                            color = 0;
                         }
-                        s.onNext(tasks);
+                        tasks.add(new CompliceRemoteTask(color, item.text, item.id, item.code,
+                                                        item.done, item.nevermind));
+                    }
+                    return tasks;
+                });
+    }
+
+    public Observable<List<CompliceGoalResponseItem>> getGoals() {
+        return getAuthToken()
+                .flatMap(token -> api.loadGoals(token))
+                .flatMap(r -> Observable.create(s -> {
+
+                    try {
+                        s.onNext(LoganSquare.parseList(r.byteStream(), CompliceGoalResponseItem.class));
                     } catch (IOException e) {
                         s.onError(e);
                     }

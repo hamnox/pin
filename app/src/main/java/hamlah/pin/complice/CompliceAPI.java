@@ -26,4 +26,7 @@ public interface CompliceAPI {
 
     @GET("/api/v0/u/me/today.json")
     Observable<ResponseBody> loadToday(@Header("Authorization") String token);
+
+    @GET("/api/v0/u/me/goals.json")
+    Observable<ResponseBody> loadGoals(@Header("Authorization") String token);
 }

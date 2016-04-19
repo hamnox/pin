@@ -45,9 +45,6 @@ import hamlah.pin.complice.CompliceTaskChangedEvent;
 import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -274,8 +271,8 @@ public class MainActivity extends AppCompatActivity {
         compliceEditButton.setVisibility((Complice.get().isLoggedIn() && compliceWaitingTask == null) ? View.VISIBLE : View.GONE);
 
         if (compliceWaitingTask != null) {
-            thebutton.getBackground().setColorFilter(BUTTON_COLOR_ALPHA | compliceWaitingTask.getSquashedColor(), PorterDuff.Mode.MULTIPLY);
-            label.setTextColor(0xff000000 | compliceWaitingTask.getSquashedColor());
+            thebutton.getBackground().setColorFilter(BUTTON_COLOR_ALPHA | compliceWaitingTask.getMidSquashedColor(), PorterDuff.Mode.MULTIPLY);
+            label.setTextColor(0xff000000 | compliceWaitingTask.getMidSquashedColor());
             setButtonText(compliceWaitingTask.getGoText());
             compliceNevermind.setVisibility(View.VISIBLE);
             compliceTaskLabel.setVisibility(View.GONE);
@@ -287,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
             setButtonText(null);
             compliceNevermind.setVisibility(View.GONE);
             if (availableCompliceTask != null) {
-                compliceTaskLabel.setTextColor(0xff000000 | availableCompliceTask.getSquashedColor());
+                compliceTaskLabel.setTextColor(0xff000000 | availableCompliceTask.getMidSquashedColor());
                 compliceTaskLabel.setText(availableCompliceTask.getLabel());
                 compliceTaskLabel.setVisibility(View.VISIBLE);
             } else {

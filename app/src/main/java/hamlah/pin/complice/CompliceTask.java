@@ -67,16 +67,32 @@ public class CompliceTask {
         return LoganSquare.parse(input, CompliceTaskJsonWrapper.class).get();
     }
 
+    /**
+     * Clamp values ranged 0-100 smoothly, with tanh.
+     * @param in starting value
+     * @param newcenter the original center is considered to be at 0.5; this will be the new center.
+     * @param curvature lower values produce sharper curves.
+     * @param scale simple multiplier for the resulting value. If this is 1 and newcenter is 0.5, the new range will be the same, just curved.
+     * @return
+     */
     private double smoothclamp(double in, double newcenter, double curvature, double scale) {
         return Math.tanh((in - 50) / (50 * curvature)) * (scale * 50) + (100 * newcenter);
     }
 
-    private int squashColor(int incolor) {
+    private int squashColor(int incolor, double brightness, double saturation) {
+        double brightnessScale = 0.2;
+        double saturationScale = 0.3;
+        if (!(brightness <= 1 - brightnessScale && brightness >= brightnessScale)) {
+            throw new AssertionError();
+        }
+        if (!(saturation <= 1 - saturationScale && saturation >= saturationScale)) {
+            throw new AssertionError();
+        }
         double[] husl = HUSLColorConverter.rgbToHusl(HUSLColorConverter.intToRgb(incolor));
         double[] clamped = {
                 husl[0],
-                smoothclamp(husl[1], 0.6, 1, 0.3),
-                smoothclamp(husl[2], 0.65, 0.9, 0.2)
+                smoothclamp(husl[1], saturation, 1, saturationScale),
+                smoothclamp(husl[2], brightness, 0.9, brightnessScale)
         };
         if (husl[1] < 1) {
             // in case of zero saturation, let's not violently boost it.
@@ -85,7 +101,11 @@ public class CompliceTask {
         return HUSLColorConverter.rgbToInt(HUSLColorConverter.huslToRgb(clamped));
     }
 
-    public int getSquashedColor() {
-        return squashColor(getColor());
+    public int getDarkSquashedColor() {
+        return squashColor(getColor(), 0.3, 0.32);
+    }
+
+    public int getMidSquashedColor() {
+        return squashColor(getColor(), 0.65, 0.68);
     }
 }

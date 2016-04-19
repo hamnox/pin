@@ -185,7 +185,7 @@ public class AcknowledgeActivity extends AppCompatActivity {
     private void updateComplice() {
         CompliceTask task = settings.getCurrentActiveCompliceTask();
         if (task != null) {
-            offbutton.getBackground().setColorFilter(0xff000000 | task.getSquashedColor(),
+            offbutton.getBackground().setColorFilter(0xff000000 | task.getMidSquashedColor(),
                     PorterDuff.Mode.MULTIPLY);
         } else {
             offbutton.getBackground().clearColorFilter();

@@ -27,8 +27,6 @@ public class CompliceList {
 
         @JsonField(name="_id")
         String id;
-
-        int color = 0;
     }
 
 

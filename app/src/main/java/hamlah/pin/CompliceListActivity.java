@@ -35,7 +35,6 @@ public class CompliceListActivity extends AppCompatActivity {
 
     private CompliceListAdapter _adapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +53,6 @@ public class CompliceListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         App.wrap(Complice.get().getActionList()).subscribe(list -> {
-
             _compliceList = Observable.from(list)
                     .filter(x -> !x.isDone() && !x.isNevermind())
                     .toList().toBlocking().first();
@@ -71,6 +69,9 @@ public class CompliceListActivity extends AppCompatActivity {
 
         @Bind(R.id.code)
         TextView _codeView;
+
+        @Bind(R.id.mainview)
+        View _mainView;
 
         public ListItemHolder(View itemView) {
             super(itemView);
@@ -92,6 +93,8 @@ public class CompliceListActivity extends AppCompatActivity {
             }
             CompliceRemoteTask item = _compliceList.get(position);
 
+            holder._mainView.setBackgroundColor(item.getDarkSquashedColor() | 0xff000000);
+
             Matcher matcher = _pattern.matcher(item.getLabel());
             if (!matcher.matches()) {
                 holder._textView.setText(item.getLabel());
@@ -104,7 +107,7 @@ public class CompliceListActivity extends AppCompatActivity {
                 holder._codeView.setText(item.getGoalCode());
             }
             ShapeDrawable drawable = new ShapeDrawable(new OvalShape());
-            drawable.getPaint().setColor(item.getSquashedColor() | 0xff000000);
+            drawable.getPaint().setColor(item.getMidSquashedColor() | 0xff000000);
             holder._codeView.setBackground(drawable);
         }
 
