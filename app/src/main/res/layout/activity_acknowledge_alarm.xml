@@ -105,6 +105,19 @@
         android:minWidth="0dp"
         style="?android:attr/borderlessButtonStyle"
         android:contentDescription="@string/apply" />
+    <ImageButton
+        android:id="@+id/asdf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_image_edit"
+        android:layout_above="@id/settings"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentRight="true"
+        android:padding="7dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:contentDescription="@string/apply" />
 
 
 </RelativeLayout>

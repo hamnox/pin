@@ -9,9 +9,12 @@ import android.util.Log;
 import com.bluelinelabs.logansquare.LoganSquare;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import hamlah.pin.App;
 import hamlah.pin.BuildConfig;
+import hamlah.pin.CompliceListActivity;
 import hamlah.pin.service.Settings;
 import rx.Observable;
 
@@ -45,10 +48,10 @@ public class Complice {
     public Observable<Boolean> completeLogin(Uri uri) {
         String token = uri.getQueryParameter("code");
         return api.authorize(token,
-                    BuildConfig.CLIENT_ID,
-                    BuildConfig.CLIENT_SECRET,
-                    String.format("http://%1$s%2$s",
-                            BuildConfig.REDIRECT_URI_HOST, BuildConfig.REDIRECT_URI_PATH))
+                BuildConfig.CLIENT_ID,
+                BuildConfig.CLIENT_SECRET,
+                String.format("http://%1$s%2$s",
+                        BuildConfig.REDIRECT_URI_HOST, BuildConfig.REDIRECT_URI_PATH))
                 .map(authResponse -> {
                     Log.i(TAG, "Your password: " + authResponse.accessToken);
                     new Settings(App.app()).setCompliceToken(authResponse.accessToken);
@@ -79,7 +82,6 @@ public class Complice {
                 .flatMap(r -> Observable.create((Observable.OnSubscribe<CurrentTaskResponse>) s -> {
                     try {
                         String result = r.string();
-                        Log.i(TAG, "response: " + result);
 
                         s.onNext(LoganSquare.parse(result, CurrentTaskResponse.class));
                     } catch (IOException e) {
@@ -91,6 +93,7 @@ public class Complice {
                     if (currentTaskResponse.noIntentions) {
                         return new CompliceEditTask(App.app(), true, true);
                     }
+                    Log.i(TAG, "goal code: " + currentTaskResponse.nextAction.goalCode);
                     return new CompliceRemoteTask(
                             currentTaskResponse.colors != null
                                     ? currentTaskResponse.colors.getIntColor()
@@ -128,5 +131,29 @@ public class Complice {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(BuildConfig.COMPLICE_TODAY_URL));
         context.startActivity(i);
+    }
+
+    public Observable<ArrayList<CompliceRemoteTask>> getActionList() {
+        return getAuthToken()
+                .flatMap(token -> api.loadToday(token))
+                .flatMap(r -> Observable.create(s -> {
+                    try {
+                        PrintWriter out = new PrintWriter("/sdcard/loglol.txt");
+                        final String string = r.string();
+                        out.write(string);
+                        out.close();
+                        Log.i(TAG, "Response: " + string);
+                        CompliceList result = LoganSquare.parse(string, CompliceList.class);
+                        ArrayList<CompliceRemoteTask> tasks = new ArrayList<>(result.todolist.size());
+                        for (CompliceList.CompliceTodoItem item : result.todolist) {
+                            tasks.add(new CompliceRemoteTask(item.color, item.text, item.id, item.code,
+                                                            item.done, item.nevermind));
+                        }
+                        s.onNext(tasks);
+                    } catch (IOException e) {
+                        s.onError(e);
+                    }
+                    s.onCompleted();
+                }));
     }
 }

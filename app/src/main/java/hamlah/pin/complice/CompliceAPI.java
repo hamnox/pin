@@ -23,4 +23,7 @@ public interface CompliceAPI {
 
     @POST("/api/u/completeById/{id}")
     Observable<ResponseBody> complete(@Header("Authorization") @NonNull String authorization, @Path("id")String id);
+
+    @GET("/api/v0/u/me/today.json")
+    Observable<ResponseBody> loadToday(@Header("Authorization") String token);
 }

@@ -95,6 +95,12 @@ public class AcknowledgeActivity extends AppCompatActivity {
         complete(false);
     }
 
+    @OnClick(R.id.asdf)
+    public void asdf() {
+        Intent intent = new Intent(this, CompliceListActivity.class);
+        startActivity(intent);
+    }
+
 
     public static void launch(Context context) {
         Log.i(TAG, "Launching, resumed: " + isResumed);

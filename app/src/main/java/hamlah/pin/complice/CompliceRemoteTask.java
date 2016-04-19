@@ -26,23 +26,36 @@ public class CompliceRemoteTask extends CompliceTask {
     public static final Pattern TIME_PATTERN = Pattern.compile("([0-9]+)\\s*(?:(m|mins?|minutes?)|(hs?|hours?))(?![a-z])\\s*[,.;!]?\\s*");
     public static final Pattern PARENS_PATTERN = Pattern.compile("\\(([^()]*)(\\)\\s*)");
 
+
     @JsonField
     String id;
 
     @JsonField
-    int goalCode;
+    String goalCode;
+
+    @JsonField
+    boolean nevermind = false;
+
+    @JsonField
+    boolean done = false;
 
     CompliceRemoteTask() {
 
     }
 
-    public CompliceRemoteTask(int color, String label, String id, int goalCode) {
+    public CompliceRemoteTask(int color, String label, String id, String goalCode) {
+        this(color, label, id, goalCode, false, false);
+    }
+
+    public CompliceRemoteTask(int color, String label, String id, String goalCode, boolean done, boolean nevermind) {
         super(color, null, null, label);
         this.id = id;
         this.goalCode = goalCode;
+        this.done = done;
+        this.nevermind = nevermind;
     }
 
-    public int getGoalCode() {
+    public String getGoalCode() {
         return goalCode;
     }
 
@@ -107,28 +120,9 @@ public class CompliceRemoteTask extends CompliceTask {
     @Override
     public void endAction(boolean isComplete) {
         if (isComplete) {
-            Complice.get().finishAction(this)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<String>() {
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.e(TAG, "ERRORror", e);
-
-                            Toast.makeText(App.app(), R.string.error_finishing, Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onNext(String s) {
-                            App.app().bus.post(new CompliceTaskChangedEvent());
-                            Log.i(TAG, "response: " + s);
-                        }
-                    });
+            App.wrap(Complice.get().finishAction(this)).subscribe(
+                s -> App.app().bus.post(new CompliceTaskChangedEvent()),
+                e -> Toast.makeText(App.app(), R.string.error_finishing, Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -169,5 +163,13 @@ public class CompliceRemoteTask extends CompliceTask {
                 };
             }
         };
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public boolean isNevermind() {
+        return nevermind;
     }
 }

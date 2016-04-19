@@ -180,6 +180,11 @@ public class MainActivity extends AppCompatActivity {
         Timers.armBotherAlarm(this, "mainactivity");
 
         settings = new Settings(this);
+        if (settings.main.isCounting() || settings.main.isTriggered()) {
+            AcknowledgeActivity.launch(MainActivity.this);
+            finish();
+            return;
+        }
 
         if (settings.getShowComplice()) {
             refreshCompliceTask();
@@ -224,11 +229,6 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 Settings settings = new Settings(MainActivity.this);
-                if (settings.main.isCounting() || settings.main.isTriggered()) {
-                    AcknowledgeActivity.launch(MainActivity.this);
-                    finish();
-                    return;
-                }
                 if (settings.bother.isTriggered()) {
                     botherCountdown.setVisibility(View.GONE);
                     acknowledgeButton.setVisibility(View.VISIBLE);
@@ -262,26 +262,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void refreshCompliceTask() {
         if (Complice.get().isLoggedIn()) {
-            Complice.get().getNextAction()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<CompliceTask>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.i(TAG, "done getting current tasks");
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.e(TAG, "Error getting current tasks", e);
-                        }
-
-                        @Override
-                        public void onNext(CompliceTask s) {
-                            availableCompliceTask = s;
-                            updateComplice();
-                        }
-                    });
+            App.wrap(Complice.get().getNextAction()).subscribe(s -> {
+                availableCompliceTask = s;
+                updateComplice();
+            });
         }
     }
 

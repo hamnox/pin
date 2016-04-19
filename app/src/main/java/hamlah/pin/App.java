@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.github.aurae.retrofit2.LoganSquareConverterFactory;
 import com.squareup.otto.Bus;
@@ -18,9 +19,13 @@ import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class App extends Application {
     private static final int PERMISSION_REQUEST = 67;
+    private static final String TAG = App.class.getSimpleName();
     private static boolean loggingEnabled = false;
     private static App app;
     private Retrofit http;
@@ -111,5 +116,12 @@ public class App extends Application {
                 mHandler.post(() -> MainThreadBus.super.post(event));
             }
         }
+    }
+
+    public static <T> Observable<T> wrap(Observable<T> observable) {
+        return observable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(throwable -> Log.e(TAG, "Unhandled exception in observable", throwable));
     }
 }

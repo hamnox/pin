@@ -48,7 +48,7 @@ class CurrentTaskResponse {
     @JsonObject
     static class NextAction {
         @JsonField(name="code")
-        int goalCode;
+        String goalCode;
 
         @JsonField(name = "text")
         String text;
