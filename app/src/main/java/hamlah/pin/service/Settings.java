@@ -16,6 +16,7 @@ import java.io.IOException;
 import hamlah.pin.BotherBotherReceiver;
 import hamlah.pin.BuildConfig;
 import hamlah.pin.MainTimerReceiver;
+import hamlah.pin.complice.CompliceRemoteTask;
 import hamlah.pin.complice.CompliceTask;
 
 /**
@@ -32,6 +33,7 @@ public class Settings {
     private static final String COMPLICE_TOKEN = "compliceAuthToken";
     private static final String SHOW_COMPLICE = "showComplice";
     private static final String CACHED_AVAILABLE_COMPLICE_TASK = "cachedAvailableCompliceTask";
+    private static final String CURRENT_PREFERRED_COMPLICE_TASK = "preferredCompliceTask";
     private final SharedPreferences preferences;
 
     public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59, "Bother Countdown");
@@ -133,6 +135,30 @@ public class Settings {
     public boolean getShowComplice() {
         return preferences.getBoolean(SHOW_COMPLICE, true);
     }
+
+
+    public void setPreferredCompliceTask(@Nullable CompliceTask task) {
+        try {
+            preferences.edit().putString(CURRENT_PREFERRED_COMPLICE_TASK, task != null ? task.toJson() : null).apply();
+        } catch (IOException e) {
+            throw new RuntimeException("wtf?");
+        }
+    }
+
+    @Nullable
+    public CompliceTask getPreferredCompliceTask() {
+        String val = preferences.getString(CURRENT_PREFERRED_COMPLICE_TASK, null);
+        if (val == null) {
+            return null;
+        }
+        try {
+            return CompliceTask.fromJson(val);
+        } catch (IOException e) {
+            Log.e(TAG, "ERROR LOADING COMPLICE PREFERRED TASK: ", e);
+            return null;
+        }
+    }
+
 
     public class AlarmSettings {
         private final String ALARM_LABEL_KEY;

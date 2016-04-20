@@ -18,9 +18,11 @@ import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import hamlah.pin.complice.Complice;
 import hamlah.pin.complice.CompliceRemoteTask;
 import rx.Observable;
+import rx.functions.Action0;
 
 public class CompliceListActivity extends AppCompatActivity {
 
@@ -73,9 +75,18 @@ public class CompliceListActivity extends AppCompatActivity {
         @Bind(R.id.mainview)
         View _mainView;
 
+        private Action0 _mainViewCallback = null;
+
         public ListItemHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.mainview)
+        public void onMainViewClick() {
+            if (_mainViewCallback != null) {
+                _mainViewCallback.call();
+            }
         }
     }
 
@@ -93,6 +104,10 @@ public class CompliceListActivity extends AppCompatActivity {
             }
             CompliceRemoteTask item = _compliceList.get(position);
 
+            holder._mainViewCallback = () -> {
+                Complice.get().setPreferredTask(item);
+                finish();
+            };
             holder._mainView.setBackgroundColor(item.getDarkSquashedColor() | 0xff000000);
 
             Matcher matcher = _pattern.matcher(item.getLabel());

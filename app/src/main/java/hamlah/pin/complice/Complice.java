@@ -96,7 +96,10 @@ public class Complice {
                     if (currentTaskResponse.noIntentions) {
                         return new CompliceEditTask(App.app(), true, true);
                     }
-                    Log.i(TAG, "goal code: " + currentTaskResponse.nextAction.goalCode);
+                    CompliceTask preferredTask = new Settings(App.app()).getPreferredCompliceTask();
+                    if (preferredTask != null) {
+                        return preferredTask;
+                    }
                     return new CompliceRemoteTask(
                             currentTaskResponse.colors != null
                                     ? currentTaskResponse.colors.getIntColor()
@@ -187,5 +190,10 @@ public class Complice {
                     }
                     s.onCompleted();
                 }));
+    }
+
+    public void setPreferredTask(CompliceRemoteTask item) {
+
+        new Settings(App.app()).setPreferredCompliceTask(item);
     }
 }

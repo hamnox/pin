@@ -3,12 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:elevation="3dp"
-    android:id="@+id/mainview">
+    android:elevation="3dp">
     <RelativeLayout
-        android:id="@+id/inner_rellayout"
+        android:id="@+id/mainview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:focusable="true"
+        android:clickable="true">
         <TextView
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -48,6 +50,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.25dp"
-        android:layout_alignBottom="@id/inner_rellayout"
+        android:layout_alignBottom="@id/mainview"
         android:background="@color/divider_line"/>
 </RelativeLayout>

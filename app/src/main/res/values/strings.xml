@@ -38,4 +38,5 @@
     <string name="login_process">Hey! To log into complice, you\'ll need to allow Stride access to your account, and then open the access in Stride so the app can connect. Ready?</string>
     <string name="open_complice">Open Complice</string>
     <string name="show_complice">Show complice</string>
+    <string name="list_complice">List Complice</string>
 </resources>

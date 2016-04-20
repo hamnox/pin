@@ -91,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.complice_edit)
     ImageButton compliceEditButton;
 
+    @Bind(R.id.complice_list)
+    ImageButton compliceListButton;
+
     @Bind(R.id.complice_task_label)
     TextView compliceTaskLabel;
 
@@ -248,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.complice_task_label)
     public void onReload() {
+        settings.setPreferredCompliceTask(null);
         refreshCompliceTask();
         Toast.makeText(this, R.string.refreshing_complice, Toast.LENGTH_SHORT).show();
     }
@@ -268,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateComplice() {
         logIntoComplice.setVisibility(!(compliceWaitingTask != null || Complice.get().isLoggedIn()) ? View.VISIBLE : View.GONE);
-        compliceEditButton.setVisibility((Complice.get().isLoggedIn() && compliceWaitingTask == null) ? View.VISIBLE : View.GONE);
 
         if (compliceWaitingTask != null) {
             thebutton.getBackground().setColorFilter(BUTTON_COLOR_ALPHA | compliceWaitingTask.getMidSquashedColor(), PorterDuff.Mode.MULTIPLY);
@@ -292,9 +295,17 @@ public class MainActivity extends AppCompatActivity {
             }
             if (availableCompliceTask != null && !(availableCompliceTask instanceof CompliceEditTask)) {
 
+                compliceListButton.setVisibility(View.VISIBLE);
                 compliceApplyTask.setVisibility(View.VISIBLE);
-            } else {
+                compliceEditButton.setVisibility(View.GONE);
+            } else if (availableCompliceTask != null) {
+                compliceListButton.setVisibility(View.GONE);
                 compliceApplyTask.setVisibility(View.GONE);
+                compliceEditButton.setVisibility(View.VISIBLE);
+            } else {
+                compliceListButton.setVisibility(View.GONE);
+                compliceApplyTask.setVisibility(View.GONE);
+                compliceEditButton.setVisibility(View.GONE);
             }
         }
     }
@@ -305,6 +316,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             thebutton.setText(s);
         }
+    }
+
+    @OnClick(R.id.complice_list)
+    public void listComplice() {
+        Intent intent = new Intent(this, CompliceListActivity.class);
+        startActivity(intent);
     }
 
     @OnClick(R.id.complice_edit)
@@ -371,6 +388,7 @@ public class MainActivity extends AppCompatActivity {
             }
             Timers.log("complice_task_start", "main", null, "" + id, this);
             compliceWaitingTask = null;
+            settings.setPreferredCompliceTask(null);
         } else {
             settings.setCurrentActiveCompliceTask(null);
         }
