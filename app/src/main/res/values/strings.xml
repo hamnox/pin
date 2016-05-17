@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Pin</string>
+    <string name="app_name">Stride</string>
     <string name="time_prompt">Minutes</string>
     <string name="set_alarm">Set alarm</string>
     <string name="stop_button">Stop main alarm</string>
     <string name="acknowledge">Got it</string>
     <string name="main_alarm_detail">%s remaining</string>
     <string name="bother_alarm_detail">You have %s...</string>
-    <string name="seriouserror">Serious error. check logcat.</string>
+    <string name="seriouserror">Serious error. Check logcat. Sdcard logging or alarms may be broken.</string>
     <string name="alarm_off">Pick next task</string>
     <string name="alarm_cancel">Done early</string>
     <string name="filler">filler</string>
@@ -22,5 +22,21 @@
     <string name="failed">Failed</string>
     <string name="typoed">typoed</string>
     <string name="distracted">distracted</string>
-    <string name="did_something_else">distracted by something else useful</string>
+    <string name="did_something_else">Did something else</string>
+    <string name="log_into_complice">Log Into Complice</string>
+    <string name="log_in">Log In</string>
+    <string name="nevermind_complice_task">Nevermind</string>
+    <string name="apply">apply</string>
+    <string name="edit_complice">Edit Complice</string>
+    <string name="enter_day_intentions_complice">Enter Today\'s Intentions</string>
+    <string name="enter_day_outcomes_complice">Enter Today\'s Outcomes</string>
+    <string name="underestimated_time">Underestimated Time</string>
+    <string name="subtask_done">Subtask Done</string>
+    <string name="refreshing_complice">Refreshing complice task</string>
+    <string name="error_finishing">Hey sorry, there was a network error while saving that you finished that</string>
+    <string name="edit_simple">edit</string>
+    <string name="login_process">Hey! To log into complice, you\'ll need to allow Stride access to your account, and then open the access in Stride so the app can connect. Ready?</string>
+    <string name="open_complice">Open Complice</string>
+    <string name="show_complice">Show complice</string>
+    <string name="list_complice">List Complice</string>
 </resources>

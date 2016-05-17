@@ -1,15 +1,72 @@
+
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'me.tatarka:gradle-retrolambda:3.2.5'
+    }
+}
+repositories {
+    mavenCentral()
+}
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+def gitversion = "[unknown]";
+try {
+    def stderr = new StringBuilder()
+    def stdout = new StringBuilder()
+    def process = "git log -n 20".execute()
+    def filter = ["egrep", "--only-matching", "^commit.*"].execute()
+    filter.consumeProcessOutput(stdout, stderr)
+    process.consumeProcessErrorStream(stderr)
+    process | filter
+    filter.waitFor()
+    gitversion = stdout.toString().replace("\n", "\\n")
+    if (stderr.length()) {
+        throw new Exception(stderr.toString())
+    }
+} catch (Throwable t) {
+    logger.error("error", t)
+}
+
+// must be applied last
+apply plugin: 'me.tatarka.retrolambda'
+
+def quotes_or_null(value) {
+    return value ? "\"${value}\"" : "null";
+}
+def string_or_empty(value) {
+    return value ? value : "";
+}
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         applicationId "hamlah.pin"
-        minSdkVersion 21
+        minSdkVersion 16
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 8
+        versionName "1.1.0"
+        buildConfigField "String", "COMPLICE_TODAY_URL", quotes_or_null("https://complice.co/today")
+        buildConfigField "String", "CLIENT_ID", quotes_or_null(project.properties["COMPLICE_CLIENT_ID"])
+        buildConfigField "String", "CLIENT_SECRET", quotes_or_null(project.properties["COMPLICE_CLIENT_SECRET"])
+        buildConfigField "String", "REDIRECT_URI_HOST", quotes_or_null(project.properties["COMPLICE_REDIRECT_URI_HOST"])
+        buildConfigField "String", "REDIRECT_URI_PATH", quotes_or_null(project.properties["COMPLICE_REDIRECT_URI_PATH"])
+        buildConfigField "String", "GIT_VERSION", quotes_or_null(gitversion)
+        manifestPlaceholders = [redirectUriHost: string_or_empty(project.properties["COMPLICE_REDIRECT_URI_HOST"]),
+                                redirectUriPath: string_or_empty(project.properties["COMPLICE_REDIRECT_URI_PATH"])]
+
     }
     buildTypes {
         release {
@@ -17,14 +74,38 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def date = new Date();
+            def formattedDate = date.format('yyyyMMddHHmmss')
+            output.outputFile = new File(output.outputFile.parent,
+                    output.outputFile.name.replace("-release", "-" + formattedDate)
+                    //for Debug use output.outputFile = new File(output.outputFile.parent,
+                    //                             output.outputFile.name.replace("-debug", "-" + formattedDate)
+            )
+        }
+    }
 }
 
 dependencies {
-    compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.squareup:otto:1.3.8'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.squareup:otto:1.3.8'
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:recyclerview-v7:23.2.1'
     compile 'net.danlew:android.joda:2.9.2'
+    compile 'com.android.support:support-v4:23.2.1'
+    compile 'com.squareup.retrofit2:retrofit:2.0.0'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    apt 'com.bluelinelabs:logansquare-compiler:1.3.6'
+    androidTestApt 'com.bluelinelabs:logansquare-compiler:1.3.6'
+    compile 'com.bluelinelabs:logansquare:1.3.6'
+    compile "com.github.aurae.retrofit2:converter-logansquare:1.4.0"
+    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'io.reactivex:rxjava:1.1.2'
+    compile 'me.zhanghai.android.materialprogressbar:library:1.1.5'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0'
+
 }

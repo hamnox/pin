@@ -5,19 +5,17 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.squareup.otto.Bus;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import hamlah.pin.App;
 import hamlah.pin.R;
 
 public class Timers {
     private static final String TAG = Timers.class.getSimpleName();
-    public static final Bus bus = new Bus();
 
     public static synchronized void setOffBotherAlarm(Context context) {
         Log.i(TAG, "Bother Alarm went off");
@@ -29,10 +27,13 @@ public class Timers {
     }
 
     public static synchronized void log(String event, String alarmtype, Long timeleft, String label, Context context) {
+        if (!App.canLog()) {
+            Toast.makeText(context, R.string.seriouserror, Toast.LENGTH_LONG).show();
+        }
         PrintWriter out = null;
         try {
             File external = Environment.getExternalStorageDirectory();
-            File filepath = new File(external, "pin_timers.log");
+            File filepath = new File(external, "stride_timers.log");
             out = new PrintWriter(new BufferedWriter(new FileWriter(filepath, true)));
             long time = System.currentTimeMillis();
             final String formatted = String.format("%s %s:%s:%s %s", time, event, alarmtype, timeleft, label);
@@ -91,7 +92,7 @@ public class Timers {
             return;
         }
         if (settings.bother.arm()) {
-            log("set", "bother", 1l, reason, context);
+            log("set", "bother", 1L, reason, context);
         }
         go(context);
     }

@@ -7,13 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.SystemClock;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.io.IOException;
 
 import hamlah.pin.BotherBotherReceiver;
 import hamlah.pin.BuildConfig;
 import hamlah.pin.MainTimerReceiver;
+import hamlah.pin.complice.CompliceRemoteTask;
+import hamlah.pin.complice.CompliceTask;
 
 /**
  * Created by hamnox on 2/3/16.
@@ -24,6 +28,12 @@ public class Settings {
     private static final String LAST_MINUTES_TEXT = "lastMinutesText";
     private static final String LAST_TITLE_TEXT = "lastTitleText";
     private static final String LAST_WAKE_TIME_TEXT = "lastWakeTimeText";
+    private static final String LAST_WAITING_COMPLICE_TASK = "lastWaitingCompliceTask";
+    private static final String CURRENT_ACTIVE_COMPLICE_TASK = "currentActiveCompliceTask";
+    private static final String COMPLICE_TOKEN = "compliceAuthToken";
+    private static final String SHOW_COMPLICE = "showComplice";
+    private static final String CACHED_AVAILABLE_COMPLICE_TASK = "cachedAvailableCompliceTask";
+    private static final String CURRENT_PREFERRED_COMPLICE_TASK = "preferredCompliceTask";
     private final SharedPreferences preferences;
 
     public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59, "Bother Countdown");
@@ -45,7 +55,7 @@ public class Settings {
     }
 
     public void setLastMinutesText(String value) {
-        preferences.edit().putString(LAST_MINUTES_TEXT, value).commit();
+        preferences.edit().putString(LAST_MINUTES_TEXT, value).apply();
     }
 
     public String getLastTitleText() {
@@ -53,7 +63,7 @@ public class Settings {
     }
 
     public void setLastTitleText(String value) {
-        preferences.edit().putString(LAST_TITLE_TEXT, value).commit();
+        preferences.edit().putString(LAST_TITLE_TEXT, value).apply();
     }
 
     public String getLastWakeTimeText() {
@@ -61,8 +71,94 @@ public class Settings {
     }
 
     public void setLastWakeTimeText(String value) {
-        preferences.edit().putString(LAST_WAKE_TIME_TEXT, value).commit();
+        preferences.edit().putString(LAST_WAKE_TIME_TEXT, value).apply();
     }
+
+    public void setLastWaitingCompliceTask(@Nullable CompliceTask task) {
+        try {
+            preferences.edit().putString(LAST_WAITING_COMPLICE_TASK, task != null ? task.toJson() : null).apply();
+        } catch (IOException e) {
+            throw new RuntimeException("wtf?");
+        }
+    }
+
+    @Nullable
+    public CompliceTask getLastWaitingCompliceTask() {
+        String val = preferences.getString(LAST_WAITING_COMPLICE_TASK, null);
+        if (val == null) {
+            return null;
+        }
+        try {
+            return CompliceTask.fromJson(val);
+        } catch (IOException e) {
+            Log.e(TAG, "ERROR LOADING COMPLICE WAITING TASK: ", e);
+            return null;
+        }
+    }
+
+
+    public void setCurrentActiveCompliceTask(@Nullable CompliceTask task) {
+        try {
+            preferences.edit().putString(CURRENT_ACTIVE_COMPLICE_TASK, task != null ? task.toJson() : null).apply();
+        } catch (IOException e) {
+            throw new RuntimeException("wtf?");
+        }
+    }
+
+    @Nullable
+    public CompliceTask getCurrentActiveCompliceTask() {
+        String val = preferences.getString(CURRENT_ACTIVE_COMPLICE_TASK, null);
+        if (val == null) {
+            return null;
+        }
+        try {
+            return CompliceTask.fromJson(val);
+        } catch (IOException e) {
+            Log.e(TAG, "ERROR LOADING COMPLICE ACTIVE TASK: ", e);
+            return null;
+        }
+    }
+
+    public void setCompliceToken(String token) {
+        preferences.edit().putString(COMPLICE_TOKEN, token).commit();
+    }
+
+    @Nullable
+    public String getCompliceToken() {
+        return preferences.getString(COMPLICE_TOKEN, null);
+    }
+
+    public void setShowComplice(boolean show) {
+        preferences.edit().putBoolean(SHOW_COMPLICE, show).commit();
+    }
+
+    public boolean getShowComplice() {
+        return preferences.getBoolean(SHOW_COMPLICE, true);
+    }
+
+
+    public void setPreferredCompliceTask(@Nullable CompliceTask task) {
+        try {
+            preferences.edit().putString(CURRENT_PREFERRED_COMPLICE_TASK, task != null ? task.toJson() : null).apply();
+        } catch (IOException e) {
+            throw new RuntimeException("wtf?");
+        }
+    }
+
+    @Nullable
+    public CompliceTask getPreferredCompliceTask() {
+        String val = preferences.getString(CURRENT_PREFERRED_COMPLICE_TASK, null);
+        if (val == null) {
+            return null;
+        }
+        try {
+            return CompliceTask.fromJson(val);
+        } catch (IOException e) {
+            Log.e(TAG, "ERROR LOADING COMPLICE PREFERRED TASK: ", e);
+            return null;
+        }
+    }
+
 
     public class AlarmSettings {
         private final String ALARM_LABEL_KEY;
@@ -105,7 +201,7 @@ public class Settings {
                 return false;
             }
             setLabel(label);
-            long end = SystemClock.elapsedRealtime() + value * scale;
+            long end = System.currentTimeMillis() + value * scale;
             _createAndroidAlarm(end);
             return true;
         }
@@ -124,7 +220,11 @@ public class Settings {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
             PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarmIndex, intent, 0);
 
-            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, end, alarmIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmMgr.setExact(AlarmManager.RTC_WAKEUP, end, alarmIntent);
+            } else {
+                alarmMgr.set(AlarmManager.RTC_WAKEUP, end, alarmIntent);
+            }
 
             setTime(end);
             Log.i(TAG, "alarm set: " + ALARM_KEY);
@@ -145,7 +245,7 @@ public class Settings {
             if (current < 0) {
                 return -1;
             }
-            return current - SystemClock.elapsedRealtime();
+            return current - System.currentTimeMillis();
         }
 
         public void disarm() {
