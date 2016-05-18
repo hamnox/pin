@@ -52,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.label)
     EditText label;
 
+    @Bind(R.id.bug_text)
+    EditText bug_text;
+
     @Bind(R.id.waketime)
     EditText waketime;
 
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-     public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
@@ -156,12 +159,20 @@ public class MainActivity extends AppCompatActivity {
         }
         onLabelEdit();
 
+        String lastBugText = settings.getLastBugText();
+        if (lastBugText != null) {
+            bug_text.setText(lastBugText);
+        } else {
+            bug_text.setText("");
+        }
+
         String lastWakeTime = settings.getLastWakeTimeText();
         if (lastWakeTime != null) {
             waketime.setText(lastWakeTime);
         } else {
             waketime.setText(defaultWakeTime);
         }
+
         onWakeTimeEdit();
 
         waketime.setVisibility(shouldShowSleepButtons() ? View.VISIBLE : View.GONE);
@@ -201,7 +212,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean shouldShowSleepButtons() {
         DateTime now = DateTime.now(DateTimeZone.getDefault());
         Log.i(TAG, "now: " + now);
-        return now.getHourOfDay() < 5 || now.getHourOfDay() >= 9 + 12;
+        return true;
+//        return now.getHourOfDay() < 5 || now.getHourOfDay() >= 9 + 12;
     }
 
     @OnTextChanged(R.id.timerminutes)
@@ -230,6 +242,13 @@ public class MainActivity extends AppCompatActivity {
 
     @OnTextChanged(R.id.label)
     public void onLabelEdit() {
+        final String text = label.getText().toString();
+        Settings settings = new Settings(this);
+        settings.setLastTitleText(text);
+    }
+
+    @OnTextChanged(R.id.bug_text)
+    public void onBugEdit() {
         final String text = label.getText().toString();
         Settings settings = new Settings(this);
         settings.setLastTitleText(text);
@@ -286,5 +305,13 @@ public class MainActivity extends AppCompatActivity {
         Timers.ackBotherAlarm(this);
         setNextCountDown(50);
         acknowledgeButton.setVisibility(View.GONE);
+    }
+
+    @OnClick(R.id.bug_button)
+    public void onSubmitBugClicked() {
+        Timers.bugLog(bug_text.getText().toString(), "", MainActivity.this);
+        Settings settings = new Settings(MainActivity.this);
+        settings.setLastBugText(null);
+        bug_text.setText("");
     }
 }

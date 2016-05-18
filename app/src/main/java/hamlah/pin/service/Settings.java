@@ -24,6 +24,7 @@ public class Settings {
     private static final String LAST_MINUTES_TEXT = "lastMinutesText";
     private static final String LAST_TITLE_TEXT = "lastTitleText";
     private static final String LAST_WAKE_TIME_TEXT = "lastWakeTimeText";
+    private static final String LAST_BUG_TEXT = "lastBugText";
     private final SharedPreferences preferences;
 
     public final AlarmSettings bother = new AlarmSettings("botheralarm", 0, BotherBotherReceiver.class, 1000, 59, "Bother Countdown");
@@ -55,6 +56,16 @@ public class Settings {
     public void setLastTitleText(String value) {
         preferences.edit().putString(LAST_TITLE_TEXT, value).commit();
     }
+
+
+    public String getLastBugText() {
+        return preferences.getString(LAST_BUG_TEXT, null);
+    }
+
+    public void setLastBugText(String value) {
+        preferences.edit().putString(LAST_BUG_TEXT, value).commit();
+    }
+
 
     public String getLastWakeTimeText() {
         return preferences.getString(LAST_WAKE_TIME_TEXT, null);

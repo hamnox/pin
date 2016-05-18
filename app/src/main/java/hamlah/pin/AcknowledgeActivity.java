@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
@@ -36,10 +38,20 @@ public class AcknowledgeActivity extends AppCompatActivity {
     @Bind(R.id.label)
     TextView label;
 
+    @Bind(R.id.bug_text)
+    EditText bug_text;
+
     private void setNextCountDown(long time) {
         handler.postDelayed(countdownCallback, time);
     }
 
+    @OnTextChanged(R.id.bug_text)
+    public void onBugEdit() {
+        final String text = label.getText().toString();
+        Settings settings = new Settings(AcknowledgeActivity.this);
+        settings.setLastTitleText(text);
+    }
+    
     @OnClick(R.id.offbutton)
     public void onOffClicked(){
         Timers.ackMainAlarm(this);
@@ -47,7 +59,15 @@ public class AcknowledgeActivity extends AppCompatActivity {
         finish();
     }
 
-    @OnClick(R.id.mark_did_something_else)
+    @OnClick(R.id.bug_button)
+    public void onSubmitBugClicked() {
+        Settings settings = new Settings(AcknowledgeActivity.this);
+        Timers.bugLog(bug_text.getText().toString(), settings.getLastTitleText(), AcknowledgeActivity.this);
+        bug_text.setText("");
+        settings.setLastBugText(null);
+    }
+
+/*    @OnClick(R.id.mark_did_something_else)
     public void markDidSomethingElse() {
         Timers.log("did_something_else", "main", null, null, this);
         onOffClicked();
@@ -69,7 +89,7 @@ public class AcknowledgeActivity extends AppCompatActivity {
     public void markTypoed() {
         Timers.log("typoed_alarm_settings", "main", null, null, this);
         onOffClicked();
-    }
+    }*/
 
 
     public static void launch(Context context) {
@@ -91,8 +111,6 @@ public class AcknowledgeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_acknowledge_alarm);
         ButterKnife.bind(this);
-
-
     }
 
     @Override
@@ -142,5 +160,12 @@ public class AcknowledgeActivity extends AppCompatActivity {
             }
         };
         setNextCountDown(1);
+        Settings settingsAll = new Settings(this);
+        String lastBugText = settingsAll.getLastBugText();
+        if (lastBugText != null) {
+            bug_text.setText(lastBugText);
+        } else {
+            bug_text.setText("");
+        }
     }
 }

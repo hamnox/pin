@@ -19,7 +19,7 @@
         android:hint="@string/default_alarm_name">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/label"
-            android:inputType="text|textCapWords|textAutoComplete|textAutoCorrect"
+            android:inputType="text|textAutoComplete|textAutoCorrect"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             />
@@ -41,7 +41,6 @@
         android:layout_toLeftOf="@id/thebutton"
         android:layout_below="@id/label_wrapper"
         android:layout_marginTop="10dp">
-
         <android.support.design.widget.TextInputEditText
             android:id="@+id/timerminutes"
             android:inputType="number"
@@ -68,7 +67,7 @@
         android:hint="@string/waketime">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/waketime"
-            android:inputType="number"
+            android:inputType="time"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textAlignment="viewEnd"
@@ -94,4 +93,8 @@
         android:layout_marginTop="5dp"
         android:visibility="gone"
         />
+    <include layout="@layout/bug_layout"
+        android:layout_below="@id/sleep_until"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"/>
 </RelativeLayout>
