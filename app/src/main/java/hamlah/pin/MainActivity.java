@@ -3,8 +3,12 @@ package hamlah.pin;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,19 +18,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Duration;
 import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
-import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,13 +49,14 @@ public class MainActivity extends AppCompatActivity {
     //private PendingIntent alarmIntent;
     private static final String defaultWakeTime = "7:00";
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int BUTTON_COLOR_ALPHA = 0xff000000;
     private static boolean isResumed = false;
 
     @Bind(R.id.timerminutes)
     EditText minutesEditor;
 
     @Bind(R.id.label)
-    EditText label;
+    TextInputEditText label;
 
     @Bind(R.id.bug_text)
     EditText bug_text;
@@ -67,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.sleep_until)
     Button sleepButton;
 
+    @Bind(R.id.thebutton)
+    Button thebutton;
+
+
+
     @Nullable
     private Integer timerMinutes;
 
@@ -77,6 +88,14 @@ public class MainActivity extends AppCompatActivity {
     private static DateTimeFormatter format = DateTimeFormat.forPattern("H:m");
     @Nullable
     private DateTime nextwake;
+
+
+    @Nullable
+    private String previousMinutesValue;
+
+    @Nullable
+    private String previousLabelValue;
+    Settings settings;
 
     public static void launch(Context context) {
         Log.i(TAG, "Launching, resumed: " + isResumed);
@@ -99,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settings = new Settings(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
     }
@@ -106,9 +126,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        App.app().bus.unregister(this);
         countdownCallback = null;
         isResumed = false;
-        Log.i(TAG, "paused, resumed: " + isResumed);
+        Log.i(TAG, "paused");
     }
 
     @Override
@@ -129,20 +150,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showSettings() {
+    /**
+     * Copied in both AcknowledgeActivity and MainActivity
+     */
+    @OnClick(R.id.settings)
+    public void showSettings() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        App.permissionResult(requestCode, permissions, grantResults);
+    }
     @Override
     protected void onResume() {
         super.onResume();
+        App.checkPermissions(this);
+        App.app().bus.register(this);
         isResumed = true;
-        Log.i(TAG, "resumed, resumed: " + isResumed);
+        Log.i(TAG, "resumed");
         Timers.armBotherAlarm(this, "mainactivity");
 
-        Settings settings = new Settings(this);
-        
+        settings = new Settings(this);
+        if (settings.main.isCounting() || settings.main.isTriggered()) {
+            AcknowledgeActivity.launch(MainActivity.this);
+            finish();
+            return;
+        }
+
         String lastMinutes = settings.getLastMinutesText();
         if (lastMinutes != null) {
             minutesEditor.setText(lastMinutes);
@@ -185,11 +222,6 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 Settings settings = new Settings(MainActivity.this);
-                if (settings.main.isCounting() || settings.main.isTriggered()) {
-                    AcknowledgeActivity.launch(MainActivity.this);
-                    finish();
-                    return;
-                }
                 if (settings.bother.isTriggered()) {
                     botherCountdown.setVisibility(View.GONE);
                     acknowledgeButton.setVisibility(View.VISIBLE);
@@ -209,6 +241,14 @@ public class MainActivity extends AppCompatActivity {
         setNextCountDown(0);
     }
 
+    private void setButtonText(@Nullable String s) {
+        if (s == null) {
+            thebutton.setText(R.string.set_alarm);
+        } else {
+            thebutton.setText(s);
+        }
+    }
+
     private boolean shouldShowSleepButtons() {
         DateTime now = DateTime.now(DateTimeZone.getDefault());
         Log.i(TAG, "now: " + now);
@@ -222,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
         Settings settings = new Settings(this);
         settings.setLastMinutesText(text);
         try {
-            Pattern pattern = Pattern.compile("^\\s*(?:([0-9])*\\s*:)?\\s*([0-9]*)\\s*$");
+            Pattern pattern = Pattern.compile("^\\s*(?:([0-9]*)\\s*:)?\\s*([0-9]*)\\s*$");
             Matcher matcher = pattern.matcher(text);
             if (!matcher.matches()) {
                 Log.v(TAG, "matcher doesn't match: '" + text + "'");
@@ -247,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setLastTitleText(text);
     }
 
+
     @OnTextChanged(R.id.bug_text)
     public void onBugEdit() {
         final String text = label.getText().toString();
@@ -255,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnTextChanged(R.id.waketime)
+
     public void onWakeTimeEdit() {
         final String text = waketime.getText().toString();
         Settings settings = new Settings(this);
@@ -274,19 +316,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.sleep_until)
-    public void onSleepClicked() {
-        if (nextwake == null) {
-            Toast.makeText(this, "Invalid wake time", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Minutes minutes = Minutes.minutesBetween(DateTime.now(DateTimeZone.getDefault()), nextwake);
-        timerMinutes = minutes.getMinutes();
-        onClicked();
-    }
-
-    @OnClick(R.id.thebutton)
-    public void onClicked() {
+    private void go() {
         if (timerMinutes == null) {
             Toast.makeText(this, "Invalid duration", Toast.LENGTH_SHORT).show();
             return;
@@ -297,7 +327,14 @@ public class MainActivity extends AppCompatActivity {
         Settings settings = new Settings(this);
         settings.setLastMinutesText(null);
         settings.setLastTitleText(null);
-        finish();
+        AcknowledgeActivity.launch(MainActivity.this);
+    }
+
+    @OnClick(R.id.thebutton)
+    public void onClicked() {
+        onLabelEdit();
+        onTimeEdit();
+        go();
     }
 
     @OnClick(R.id.acknowledgebutton)

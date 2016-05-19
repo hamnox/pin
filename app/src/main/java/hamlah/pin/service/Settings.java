@@ -7,9 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.SystemClock;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.io.IOException;
 
 import hamlah.pin.BotherBotherReceiver;
 import hamlah.pin.BuildConfig;
@@ -46,7 +48,7 @@ public class Settings {
     }
 
     public void setLastMinutesText(String value) {
-        preferences.edit().putString(LAST_MINUTES_TEXT, value).commit();
+        preferences.edit().putString(LAST_MINUTES_TEXT, value).apply();
     }
 
     public String getLastTitleText() {
@@ -54,7 +56,7 @@ public class Settings {
     }
 
     public void setLastTitleText(String value) {
-        preferences.edit().putString(LAST_TITLE_TEXT, value).commit();
+        preferences.edit().putString(LAST_TITLE_TEXT, value).apply();
     }
 
 
@@ -72,8 +74,10 @@ public class Settings {
     }
 
     public void setLastWakeTimeText(String value) {
-        preferences.edit().putString(LAST_WAKE_TIME_TEXT, value).commit();
+        preferences.edit().putString(LAST_WAKE_TIME_TEXT, value).apply();
     }
+
+
 
     public class AlarmSettings {
         private final String ALARM_LABEL_KEY;
@@ -116,7 +120,7 @@ public class Settings {
                 return false;
             }
             setLabel(label);
-            long end = SystemClock.elapsedRealtime() + value * scale;
+            long end = System.currentTimeMillis() + value * scale;
             _createAndroidAlarm(end);
             return true;
         }
@@ -135,7 +139,11 @@ public class Settings {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
             PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarmIndex, intent, 0);
 
-            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, end, alarmIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmMgr.setExact(AlarmManager.RTC_WAKEUP, end, alarmIntent);
+            } else {
+                alarmMgr.set(AlarmManager.RTC_WAKEUP, end, alarmIntent);
+            }
 
             setTime(end);
             Log.i(TAG, "alarm set: " + ALARM_KEY);
@@ -156,7 +164,7 @@ public class Settings {
             if (current < 0) {
                 return -1;
             }
-            return current - SystemClock.elapsedRealtime();
+            return current - System.currentTimeMillis();
         }
 
         public void disarm() {

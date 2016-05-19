@@ -9,20 +9,23 @@
     android:paddingLeft="20dp"
     android:layout_centerInParent="true"
     android:gravity="center_vertical"
+    android:minHeight="400dp"
     tools:context="hamlah.pin.MainActivity">
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/label_wrapper"
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:paddingLeft="0dp"
         android:hint="@string/default_alarm_name">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/label"
             android:inputType="text|textAutoComplete|textAutoCorrect"
-            android:layout_width="300dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
-            />
+            android:paddingLeft="0dp"
+        />
     </android.support.design.widget.TextInputLayout>
 
     <Button
@@ -40,13 +43,15 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/thebutton"
         android:layout_below="@id/label_wrapper"
+        android:paddingLeft="0dp"
         android:layout_marginTop="10dp">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/timerminutes"
-            android:inputType="number"
+            android:inputType="datetime|time"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:textAlignment="viewEnd"
+            android:paddingLeft="0dp"
+            android:gravity="end"
             android:selectAllOnFocus="true"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -64,13 +69,15 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/sleep_until"
         android:layout_toLeftOf="@id/sleep_until"
+        android:paddingLeft="0dp"
         android:hint="@string/waketime">
         <android.support.design.widget.TextInputEditText
             android:id="@+id/waketime"
-            android:inputType="time"
+            android:inputType="datetime|time"
             android:layout_width="100dp"
+            android:paddingLeft="0dp"
             android:layout_height="wrap_content"
-            android:textAlignment="viewEnd"
+            android:gravity="end"
             android:selectAllOnFocus="true"/>
     </android.support.design.widget.TextInputLayout>
     <TextView
@@ -81,7 +88,7 @@
         android:layout_alignLeft="@id/label_wrapper"
         android:layout_below="@id/label_wrapper"
         android:layout_marginTop="25dp"
-        />
+        tools:ignore="HardcodedText" />
     <Button
         android:id="@+id/acknowledgebutton"
         android:layout_width="match_parent"
@@ -97,4 +104,18 @@
         android:layout_below="@id/sleep_until"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"/>
+    <ImageButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_settings"
+        android:layout_alignLeft="@id/label_wrapper"
+        android:layout_below="@id/timerminutes_wrapper"
+        android:padding="7dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:contentDescription="@string/apply" />
 </RelativeLayout>
+
+<!-- todo: copy style to acknowledge alarm -->

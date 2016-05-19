@@ -6,11 +6,15 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hamlah.pin.service.Settings;
+import rx.functions.Action1;
+import rx.functions.Func0;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -19,6 +23,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Settings.AlarmSettings[] alarms;
 
+    @Bind(R.id.show_complice)
+    CheckBox _showCompliceCheckbox;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +33,18 @@ public class SettingsActivity extends AppCompatActivity {
         settings = new Settings(this);
         alarms = new Settings.AlarmSettings[]{settings.bother, settings.main};
         ButterKnife.bind(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    private void bindSetting(CheckBox pref, Action1<Boolean> set, Func0<Boolean> get) {
+        pref.setChecked(get.call());
+        pref.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            set.call(isChecked);
+        });
     }
 
     @OnClick(R.id.set_bother_alarm_sound)
