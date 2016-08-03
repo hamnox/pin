@@ -256,6 +256,18 @@ public class MainActivity extends AppCompatActivity {
 //        return now.getHourOfDay() < 5 || now.getHourOfDay() >= 9 + 12;
     }
 
+    @OnClick(R.id.sleep_until)
+    public void onSleepClicked() {
+            if (nextwake == null) {
+                    Toast.makeText(this, "Invalid wake time", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            Minutes minutes = Minutes.minutesBetween(DateTime.now(DateTimeZone.getDefault()), nextwake);
+            timerMinutes = minutes.getMinutes();
+            onClicked();
+        }
+
+
     @OnTextChanged(R.id.timerminutes)
     public void onTimeEdit() {
         final String text = minutesEditor.getText().toString();
@@ -296,7 +308,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnTextChanged(R.id.waketime)
-
     public void onWakeTimeEdit() {
         final String text = waketime.getText().toString();
         Settings settings = new Settings(this);
@@ -312,6 +323,7 @@ public class MainActivity extends AppCompatActivity {
             }
             nextwake = result;
         } catch (IllegalArgumentException e) {
+            Log.e(TAG, "aargggh");
             nextwake = null;
         }
     }
@@ -333,7 +345,6 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.thebutton)
     public void onClicked() {
         onLabelEdit();
-        onTimeEdit();
         go();
     }
 
