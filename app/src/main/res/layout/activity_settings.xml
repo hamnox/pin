@@ -19,9 +19,17 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="@string/button_set_bother"/>
-    <CheckBox
-        android:layout_width="wrap_content"
+    <NumberPicker
+        android:layout_width="100dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="150dp"
+        android:id="@+id/numpick"
+        android:layout_margin="10dp"/>
+
+    <Button
+        android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:text="@string/show_complice"
-        android:id="@+id/show_complice"/>
+        android:id="@+id/numdisplay"
+        android:gravity="center"
+        android:text="Random Number: N"/>
 </LinearLayout>

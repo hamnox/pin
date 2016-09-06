@@ -6,8 +6,13 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -23,16 +28,47 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Settings.AlarmSettings[] alarms;
 
-    @Bind(R.id.show_complice)
-    CheckBox _showCompliceCheckbox;
+    @Bind(R.id.numpick)
+    NumberPicker np;
+
+    @Bind(R.id.numdisplay)
+    Button nshow;
+
+    private Random rand;
+    private int randcount = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        rand = new Random();
         settings = new Settings(this);
         alarms = new Settings.AlarmSettings[]{settings.bother, settings.main};
         ButterKnife.bind(this);
+
+        np.setMinValue(1);
+        np.setMaxValue(32);
+        np.setValue(2);
+        np.setWrapSelectorWheel(true);
+
+        nshow.setText("Random Output: ");
+        np.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            // Nothing!
+        });
+
+    }
+
+
+    @OnClick(R.id.numdisplay)
+    public void onNumDisplayClick() {
+        randcount += 1;
+        if (randcount > 10) {
+            nshow.setText("Random Output: ");
+            randcount = 1;
+        }
+        int val = rand.nextInt(np.getValue()) + 1;
+        nshow.setText(nshow.getText() + " " + String.valueOf(val));
     }
 
     @Override
