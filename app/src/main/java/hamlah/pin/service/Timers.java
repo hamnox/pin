@@ -18,6 +18,7 @@ import hamlah.pin.App;
 import hamlah.pin.R;
 
 public class Timers {
+    /*
     private static final String TAG = Timers.class.getSimpleName();
 
     public static synchronized void setOffBotherAlarm(Context context) {
@@ -29,32 +30,7 @@ public class Timers {
         go(context);
     }
 
-    public static synchronized void bugLog(String bug, String label, Context context) {
-        PrintWriter out = null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getDefault());
 
-        try {
-            File external = Environment.getExternalStorageDirectory();
-            File filepath = new File(external, "stride_bugs.log");
-            out = new PrintWriter(new BufferedWriter(new FileWriter(filepath, true)));
-            Date result_date = new Date(System.currentTimeMillis());
-
-            final String formatted = String.format("%s %s <%s>", sdf.format(result_date), bug, label);
-
-            out.println(formatted);
-            out.close();
-            Log.i(TAG, formatted);
-        } catch (IOException e) {
-            Toast.makeText(context, R.string.seriouserror, Toast.LENGTH_LONG).show();
-            Log.wtf(TAG, e);
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
-
-    }
 
     public static synchronized void log(String event, String alarmtype, Long timeleft, String label, Context context) {
         if (!App.canLog()) {
@@ -131,4 +107,5 @@ public class Timers {
         AsyncRingtoneService.go(context);
         CountdownService.go(context);
     }
+    */
 }

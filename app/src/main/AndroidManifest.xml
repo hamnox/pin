@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="hamlah.pin">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--<uses-permission android:name="android.permission.WAKE_LOCK" /> -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
 
     <application
         android:name=".App"
@@ -16,8 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <receiver android:name=".MainTimerReceiver" />
-        <receiver android:name=".BotherBotherReceiver" />
+        <!--<receiver android:name=".MainTimerReceiver" />
+        <receiver android:name=".BotherBotherReceiver" />-->
 
         <activity
             android:name=".MainActivity"
@@ -29,6 +29,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--
         <activity
             android:name=".AcknowledgeActivity"
             android:keepScreenOn="true" />
@@ -41,14 +42,15 @@
             android:name=".service.AsyncRingtoneService"
             android:enabled="true"
             android:exported="false" />
-
-        <receiver android:name=".BootReceiver">
+        -->
+        <!-- <receiver android:name=".BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
-        </receiver>
+        </receiver> -->
 
         <activity android:name=".SettingsActivity" />
+        <!--
         <activity android:name=".complice.CompliceLoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -64,6 +66,7 @@
                     tools:ignore="GoogleAppIndexingDeepLinkError,GoogleAppIndexingUrlError" />
             </intent-filter>
         </activity>
+        -->
     </application>
 
 </manifest>

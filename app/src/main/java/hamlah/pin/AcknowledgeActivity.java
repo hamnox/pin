@@ -61,7 +61,7 @@ public class AcknowledgeActivity extends AppCompatActivity {
     }
 
     public static void completeMainAlarm(Context context, boolean complete) {
-        Timers.ackMainAlarm(context);
+        // Timers.ackMainAlarm(context);
         MainActivity.launch(context);
     }
 
@@ -73,7 +73,7 @@ public class AcknowledgeActivity extends AppCompatActivity {
     @OnClick(R.id.bug_button)
     public void onSubmitBugClicked() {
         Settings settings = new Settings(AcknowledgeActivity.this);
-        Timers.bugLog(bug_text.getText().toString(), settings.getLastTitleText(), AcknowledgeActivity.this);
+        // Timers.bugLog(bug_text.getText().toString(), settings.getLastTitleText(), AcknowledgeActivity.this);
         bug_text.setText("");
         settings.setLastBugText(null);
     }
@@ -147,6 +147,7 @@ public class AcknowledgeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        /*
         App.checkPermissions(this);
         isResumed = true;
         Log.i(TAG, "resumed, resumed: " + isResumed);
@@ -191,6 +192,7 @@ public class AcknowledgeActivity extends AppCompatActivity {
         } else {
             bug_text.setText("");
         }
+        */
     }
 
 

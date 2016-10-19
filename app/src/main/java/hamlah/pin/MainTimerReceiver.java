@@ -16,6 +16,6 @@ public class MainTimerReceiver extends BroadcastReceiver
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Timers.setOffMainAlarm(context);
+        // Timers.setOffMainAlarm(context);
     }
 }

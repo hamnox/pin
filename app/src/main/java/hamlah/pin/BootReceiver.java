@@ -9,6 +9,6 @@ import hamlah.pin.service.Timers;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Timers.armBotherAlarm(context, "boot");
+        //Timers.armBotherAlarm(context, "boot");
     }
 }

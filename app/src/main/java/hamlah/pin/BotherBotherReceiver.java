@@ -12,7 +12,7 @@ public class BotherBotherReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Timers.setOffBotherAlarm(context);
+        //Timers.setOffBotherAlarm(context);
     }
     // - mainactivity sees flag, shows "acknowledge bother alarm" button
     // - when that button is pressed, shut off beeping and set a new bother alarm

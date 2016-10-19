@@ -40,7 +40,7 @@ public class App extends Application {
                 == PackageManager.PERMISSION_GRANTED;
         JodaTimeAndroid.init(this);
 
-        Timers.go(this);
+        //Timers.go(this);
         new Settings(this).refreshAlarms();
 
         http = new Retrofit.Builder()

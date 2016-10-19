@@ -28,47 +28,20 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Settings.AlarmSettings[] alarms;
 
-    @Bind(R.id.numpick)
-    NumberPicker np;
 
-    @Bind(R.id.numdisplay)
-    Button nshow;
 
-    private Random rand;
-    private int randcount = 0;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        rand = new Random();
         settings = new Settings(this);
         alarms = new Settings.AlarmSettings[]{settings.bother, settings.main};
         ButterKnife.bind(this);
 
-        np.setMinValue(1);
-        np.setMaxValue(32);
-        np.setValue(2);
-        np.setWrapSelectorWheel(true);
-
-        nshow.setText("Random Output: ");
-        np.setOnValueChangedListener((picker, oldVal, newVal) -> {
-            // Nothing!
-        });
-
-    }
 
 
-    @OnClick(R.id.numdisplay)
-    public void onNumDisplayClick() {
-        randcount += 1;
-        if (randcount > 10) {
-            nshow.setText("Random Output: ");
-            randcount = 1;
-        }
-        int val = rand.nextInt(np.getValue()) + 1;
-        nshow.setText(nshow.getText() + " " + String.valueOf(val));
     }
 
     @Override
@@ -82,7 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
             set.call(isChecked);
         });
     }
-
+/*
     @OnClick(R.id.set_bother_alarm_sound)
     public void onBotherClick() {
         getSound(0, R.string.bother_alarm_sound, settings.bother.getSound());
@@ -93,6 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void onMainClick() {
         getSound(1, R.string.main_alarm_sound, settings.main.getSound());
     }
+
 
     private void getSound(int index, int label, Uri current) {
         Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
@@ -106,7 +80,7 @@ public class SettingsActivity extends AppCompatActivity {
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, current);
         startActivityForResult(intent, index + 1000);
     }
-
+*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) {

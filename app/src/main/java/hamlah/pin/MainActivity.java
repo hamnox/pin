@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +33,16 @@ import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +50,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
-import hamlah.pin.service.CountdownService;
+//import hamlah.pin.service.CountdownService;
 import hamlah.pin.service.Settings;
 import hamlah.pin.service.Timers;
 
@@ -52,31 +63,51 @@ public class MainActivity extends AppCompatActivity {
     private static final int BUTTON_COLOR_ALPHA = 0xff000000;
     private static boolean isResumed = false;
 
-    @Bind(R.id.timerminutes)
-    EditText minutesEditor;
+    private Random rand;
+    private int randcount = 0;
 
-    @Bind(R.id.label)
-    TextInputEditText label;
+//    @Bind(R.id.timerminutes)
+//    EditText minutesEditor;
+
+//    @Bind(R.id.label)
+//    TextInputEditText label;
 
     @Bind(R.id.bug_text)
     EditText bug_text;
 
-    @Bind(R.id.waketime)
-    EditText waketime;
+//    @Bind(R.id.waketime)
+//    EditText waketime;
+//
+//    @Bind(R.id.bother_countdown)
+//    TextView botherCountdown;
+//
+//    @Bind(R.id.acknowledgebutton)
+//    Button acknowledgeButton;
+//
+//    @Bind(R.id.sleep_until)
+//    Button sleepButton;
+//
+//    @Bind(R.id.thebutton)
+//    Button thebutton;
 
-    @Bind(R.id.bother_countdown)
-    TextView botherCountdown;
 
-    @Bind(R.id.acknowledgebutton)
-    Button acknowledgeButton;
+    @Bind(R.id.numdisplay)
+    TextView nshow;
 
-    @Bind(R.id.sleep_until)
-    Button sleepButton;
-
-    @Bind(R.id.thebutton)
-    Button thebutton;
+    @Bind(R.id.numpick)
+    NumberPicker np;
 
 
+    @OnClick(R.id.numbutton)
+    public void onNumDisplayClick() {
+        randcount += 1;
+        if (randcount > 10) {
+            nshow.setText("Out: ".toString());
+            randcount = 1;
+        }
+        int val = rand.nextInt(np.getValue()) + 1;
+        nshow.setText(nshow.getText() + " " + String.valueOf(val));
+    }
 
     @Nullable
     private Integer timerMinutes;
@@ -121,6 +152,18 @@ public class MainActivity extends AppCompatActivity {
         settings = new Settings(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        rand = new Random();
+
+        np.setMinValue(1);
+        np.setMaxValue(32);
+        np.setValue(2);
+        np.setWrapSelectorWheel(true);
+
+        nshow.setText("Out: ".toString());
+        np.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            // Nothing!
+        });
     }
 
     @Override
@@ -167,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        /*
         App.checkPermissions(this);
         App.app().bus.register(this);
         isResumed = true;
@@ -195,14 +239,14 @@ public class MainActivity extends AppCompatActivity {
             label.setText("");
         }
         onLabelEdit();
-
+*/
         String lastBugText = settings.getLastBugText();
         if (lastBugText != null) {
             bug_text.setText(lastBugText);
         } else {
             bug_text.setText("");
         }
-
+/*
         String lastWakeTime = settings.getLastWakeTimeText();
         if (lastWakeTime != null) {
             waketime.setText(lastWakeTime);
@@ -239,8 +283,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         setNextCountDown(0);
+        */
     }
 
+    /*
     private void setButtonText(@Nullable String s) {
         if (s == null) {
             thebutton.setText(R.string.set_alarm);
@@ -255,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
 //        return now.getHourOfDay() < 5 || now.getHourOfDay() >= 9 + 12;
     }
+    /*
 
     @OnClick(R.id.sleep_until)
     public void onSleepClicked() {
@@ -299,14 +346,14 @@ public class MainActivity extends AppCompatActivity {
         settings.setLastTitleText(text);
     }
 
-
+*/
     @OnTextChanged(R.id.bug_text)
     public void onBugEdit() {
-        final String text = label.getText().toString();
+        final String text = bug_text.getText().toString();
         Settings settings = new Settings(this);
-        settings.setLastTitleText(text);
+        settings.setLastBugText(text);
     }
-
+/*
     @OnTextChanged(R.id.waketime)
     public void onWakeTimeEdit() {
         final String text = waketime.getText().toString();
@@ -327,20 +374,22 @@ public class MainActivity extends AppCompatActivity {
             nextwake = null;
         }
     }
-
+*/
     private void go() {
         if (timerMinutes == null) {
             Toast.makeText(this, "Invalid duration", Toast.LENGTH_SHORT).show();
             return;
         }
-        Timers.setMainAlarm(this, timerMinutes, label.getText().toString());
-        Toast.makeText(this, "Timer set for " + timerMinutes.toString()
-               + " minutes.", Toast.LENGTH_SHORT).show();
+        // Timers.setMainAlarm(this, timerMinutes, label.getText().toString());
+        Toast.makeText(this, "Timer nonexistant", Toast.LENGTH_SHORT).show();
         Settings settings = new Settings(this);
         settings.setLastMinutesText(null);
         settings.setLastTitleText(null);
-        AcknowledgeActivity.launch(MainActivity.this);
+        //AcknowledgeActivity.launch(MainActivity.this);
     }
+
+/*
+
 
     @OnClick(R.id.thebutton)
     public void onClicked() {
@@ -350,16 +399,44 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.acknowledgebutton)
     public void onAcknowledgeClicked() {
-        Timers.ackBotherAlarm(this);
+        //Timers.ackBotherAlarm(this);
         setNextCountDown(50);
         acknowledgeButton.setVisibility(View.GONE);
     }
-
+*/
     @OnClick(R.id.bug_button)
     public void onSubmitBugClicked() {
-        Timers.bugLog(bug_text.getText().toString(), "", MainActivity.this);
+        bugLog(bug_text.getText().toString(), MainActivity.this);
         Settings settings = new Settings(MainActivity.this);
         settings.setLastBugText(null);
         bug_text.setText("");
+    }
+
+
+    public static synchronized void bugLog(String bug, Context context) {
+        PrintWriter out = null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getDefault());
+
+        try {
+            File external = Environment.getExternalStorageDirectory();
+            File filepath = new File(external, "stride_bugs.log");
+            out = new PrintWriter(new BufferedWriter(new FileWriter(filepath, true)));
+            Date result_date = new Date(System.currentTimeMillis());
+
+            final String formatted = String.format("%s %s", sdf.format(result_date), bug).trim();
+
+            out.println(formatted);
+            out.close();
+            Log.i(TAG, formatted);
+        } catch (IOException e) {
+            Toast.makeText(context, R.string.seriouserror, Toast.LENGTH_LONG).show();
+            Log.wtf(TAG, e);
+        } finally {
+            if (out != null) {
+            out.close();
+        }
+    }
+
     }
 }

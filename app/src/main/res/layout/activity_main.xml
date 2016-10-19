@@ -8,10 +8,9 @@
     android:paddingRight="20dp"
     android:paddingLeft="20dp"
     android:layout_centerInParent="true"
-    android:gravity="center_vertical"
     android:minHeight="400dp"
     tools:context="hamlah.pin.MainActivity">
-
+<!--
     <android.support.design.widget.TextInputLayout
         android:id="@+id/label_wrapper"
         android:layout_width="320dp"
@@ -99,23 +98,37 @@
         android:layout_below="@id/label_wrapper"
         android:layout_marginTop="5dp"
         android:visibility="gone"
-        />
-    <include layout="@layout/bug_layout"
-        android:layout_below="@id/sleep_until"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"/>
+        />-->
     <ImageButton
         android:id="@+id/settings"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_action_settings"
-        android:layout_alignLeft="@id/label_wrapper"
-        android:layout_below="@id/timerminutes_wrapper"
         android:padding="7dp"
         android:minHeight="0dp"
         android:minWidth="0dp"
         style="?android:attr/borderlessButtonStyle"
-        android:contentDescription="@string/apply" />
+        android:contentDescription="@string/apply"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+        <include layout="@layout/random_layout"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_centerHorizontal="true"
+                 android:id="@+id/random_layout"/>
+
+
+        <include layout="@layout/bug_layout"
+                 android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_below="@id/random_layout"/>
+    </RelativeLayout>
+
 </RelativeLayout>
 
 <!-- todo: copy style to acknowledge alarm -->
